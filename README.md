@@ -1,2 +1,4 @@
 # Koreh-v1
-Koreh v1 CPU - Schematics, code, everything
+[Instruction encoding](blob/master/docs/arch/instruction-encoding.md)
+[Registers list](blob/master/docs/arch/registers.md)
+[Instruction list](blob/master/docs/arch/instructions.md)
