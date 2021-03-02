@@ -9,3 +9,4 @@
 #include <version.h>
 #include <templates.h>
 #include <register.h>
+#include <instruction.h>

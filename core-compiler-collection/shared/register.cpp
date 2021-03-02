@@ -1,4 +1,4 @@
-#include <asm.h>
+#include <shared.h>
 
 std::vector<register_t> registers;
 
@@ -78,8 +78,8 @@ register_t sih = addregister("sh", 0b00011110, 0);
 register_t si = addregister("si", 0b00101110, 1);
 register_t esi = addregister("esi", 0b00111110, 2);
 register_t rsi = addregister("rsi", 0b01001110, 3);
-register_t dpl = addregister("dl", 0b00001111, 0);
-register_t dph = addregister("dh", 0b00011111, 0);
+register_t dil = addregister("dil", 0b00001111, 0);
+register_t dih = addregister("dih", 0b00011111, 0);
 register_t di = addregister("di", 0b00101111, 1);
 register_t edi = addregister("edi", 0b00111111, 2);
 register_t rdi = addregister("rdi", 0b01001111, 3);

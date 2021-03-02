@@ -11,7 +11,7 @@ struct register_t {
 	uint8_t size;
 };
 
-extern register_t addregister(std::string name, uint8_t address);
+extern register_t addregister(std::string name, uint8_t address, uint8_t size);
 
 extern std::vector<register_t> registers;
 

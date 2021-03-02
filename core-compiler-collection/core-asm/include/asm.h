@@ -3,8 +3,6 @@
 
 constexpr uint32_t version = (0 << 24) | (0 << 16) | (1 << 8) | 1; // release << 24 | major << 16 | minor << 8 | 1=alpha 2=beta
 
-#include <instruction.h>
-
 // main.cpp
 extern std::vector<unsigned char> binarydata;
 extern bool bootable;

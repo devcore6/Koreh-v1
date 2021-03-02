@@ -1,4 +1,4 @@
-#include <asm.h>
+#include <shared.h>
 
 std::vector <instruction_t> validinstructions;
 

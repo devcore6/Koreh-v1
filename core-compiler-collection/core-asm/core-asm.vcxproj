@@ -147,19 +147,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\instruction.h" />
     <ClInclude Include="..\include\register.h" />
     <ClInclude Include="..\include\shared.h" />
     <ClInclude Include="..\include\templates.h" />
     <ClInclude Include="..\include\version.h" />
     <ClInclude Include="asm.tab.hh" />
-    <ClInclude Include="include\instruction.h" />
     <ClInclude Include="include\asm.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\shared\instruction.cpp" />
     <ClCompile Include="..\shared\register.cpp" />
     <ClCompile Include="asm.cpp" />
     <ClCompile Include="asm.tab.cc" />
-    <ClCompile Include="instruction.cpp" />
     <ClCompile Include="lex.yy.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>

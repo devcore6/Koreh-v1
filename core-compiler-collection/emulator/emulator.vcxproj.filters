@@ -27,12 +27,24 @@
     <ClInclude Include="..\include\version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\instruction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\emulator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\shared\register.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\instruction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="emulator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
