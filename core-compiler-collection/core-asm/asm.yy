@@ -69,7 +69,7 @@ parameter           : INTVAL {
                     | REGISTER {
                         $$ = new std::pair<uint8_t, void*>;
                         $$->first = 2;
-                        $$->second = (void*)$1;
+                        $$->second = (void*)find(registers, *$1);
                     }
                     | STRING {
                         $$ = new std::pair<uint8_t, void*>;
@@ -131,9 +131,20 @@ instructiongroup    : STRING parametergroup ';' {
                                                         break;
                                                     }
                                                     case 2: {
-                                                        uint64_t *val = (uint64_t*)$2->at(0)->second;
-                                                        binarydata.push_back((unsigned char)(*val & 0xFF));
-                                                        for(size_t i = 0; i < 13; i++) binarydata.push_back(0);
+                                                        register_t *val = (register_t*)$2->at(0)->second;
+                                                        if(!val) {
+                                                            std::cerr << "line " << curline << ": " << "Error! Invalid register" << std::endl;
+                                                            errors++;
+                                                        } else {
+                                                            uint8_t size = (instruction.opcode >> 13) & 3;
+                                                            if(size != val->size) {
+                                                                std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *$1 << std::endl;
+                                                                errors++;
+                                                            } else {
+                                                                binarydata.push_back(val->address);
+                                                                for(size_t i = 0; i < 13; i++) binarydata.push_back(0);
+                                                            }
+                                                        }
                                                         break;
                                                     }
                                                     case 3: {
@@ -156,22 +167,45 @@ instructiongroup    : STRING parametergroup ';' {
                                                 switch($2->at(0)->first) {
                                                     /* case 1 doesn't exist here */
                                                     case 2: {
-                                                        uint64_t *val = (uint64_t*)$2->at(0)->second;
-                                                        binarydata.push_back((unsigned char)(*val & 0xFF));
+                                                        register_t *reg = (register_t*)$2->at(0)->second;
+                                                        if(!reg) {
+                                                            std::cerr << "line " << curline << ": " << "Error! Invalid register" << std::endl;
+                                                            errors++;
+                                                        } else {
+                                                            uint8_t size = (instruction.opcode >> 13) & 3;
+                                                            if(size != reg->size) {
+                                                                std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *$1 << std::endl;
+                                                                errors++;
+                                                            } else {
+                                                                binarydata.push_back(reg->address);
+                                                            }
+                                                        }
                                                         switch($2->at(1)->first) {
                                                             case 1: {
                                                                 for(size_t i = 0; i < 5; i++) binarydata.push_back(0);
-                                                                val = (uint64_t*)$2->at(1)->second;
+                                                                uint64_t *val = (uint64_t*)$2->at(1)->second;
                                                                 for(size_t i = 0; i < 8; i++) binarydata.push_back((unsigned char)((*val & ((uint64_t)0xFF << (8 * (7 - i)))) >> (8 * (7 - i))));
                                                                 break;
                                                             }
                                                             case 2: {
-                                                                val = (uint64_t*)$2->at(1)->second;
-                                                                binarydata.push_back((unsigned char)(*val & 0xFF));
-                                                                for(size_t i = 0; i < 12; i++) binarydata.push_back(0);
+                                                                reg = (register_t*)$2->at(1)->second;
+                                                                if(!reg) {
+                                                                    std::cerr << "line " << curline << ": " << "Error! Invalid register" << std::endl;
+                                                                    errors++;
+                                                                } else {
+                                                                    uint8_t size = (instruction.opcode >> 13) & 3;
+                                                                    if(size != reg->size) {
+                                                                        std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *$1 << std::endl;
+                                                                        errors++;
+                                                                    } else {
+                                                                        binarydata.push_back(reg->address);
+                                                                        for(size_t i = 0; i < 12; i++) binarydata.push_back(0);
+                                                                    }
+                                                                }
                                                                 break;
                                                             }
                                                             case 3: {
+                                                                uint64_t *val = (uint64_t*)$2->at(1)->second;
                                                                 binarydata.push_back(0xFF);
                                                                 for(size_t i = 0; i < 4; i++) binarydata.push_back(0);
                                                                 for(size_t i = 0; i < 8; i++) binarydata.push_back((unsigned char)((*val & ((uint64_t)0xFF << (8 * (7 - i)))) >> (8 * (7 - i))));
@@ -196,10 +230,19 @@ instructiongroup    : STRING parametergroup ';' {
                                                                 break;
                                                             }
                                                             case 2: {
-                                                                uint64_t *val = (uint64_t*)$2->at(1)->second;
-                                                                binarydata.push_back((unsigned char)(*val & 0xFF));
-                                                                for(size_t i = 0; i < 4; i++) binarydata.push_back(0);
-                                                                break;
+                                                                register_t *reg = (register_t*)$2->at(1)->second;
+                                                                if(!reg) {
+                                                                    std::cerr << "line " << curline << ": " << "Error! Invalid register" << std::endl;
+                                                                    errors++;
+                                                                } else {
+                                                                    uint8_t size = (instruction.opcode >> 13) & 3;
+                                                                    if(size != reg->size) {
+                                                                        std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *$1 << std::endl;
+                                                                        errors++;
+                                                                    } else {
+                                                                        binarydata.push_back(reg->address);
+                                                                    }
+                                                                }
                                                             }
                                                             /* case 3 doesn't exist here */
                                                             /* case 4 doesn't exist here */
@@ -214,11 +257,33 @@ instructiongroup    : STRING parametergroup ';' {
                                             } // argc = 2
                                             case 3: {
                                                 // so far argc == 3 only exists for arguments of type 1, 2, 2 so that makes this less complex
-                                                uint64_t *val = (uint64_t*)$2->at(1)->second;
-                                                binarydata.push_back((unsigned char)(*val & 0xFF));
-                                                val = (uint64_t*)$2->at(2)->second;
-                                                binarydata.push_back((unsigned char)(*val & 0xFF));
-                                                val = (uint64_t*)$2->at(0)->second;
+                                                register_t *reg = (register_t*)$2->at(1)->second;
+                                                if(!reg) {
+                                                    std::cerr << "line " << curline << ": " << "Error! Invalid register" << std::endl;
+                                                    errors++;
+                                                } else {
+                                                    uint8_t size = (instruction.opcode >> 13) & 3;
+                                                    if(size != reg->size) {
+                                                        std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *$1 << std::endl;
+                                                        errors++;
+                                                    } else {
+                                                        binarydata.push_back(reg->address);
+                                                    }
+                                                }
+                                                reg = (register_t*)$2->at(2)->second;
+                                                if(!reg) {
+                                                    std::cerr << "line " << curline << ": " << "Error! Invalid register" << std::endl;
+                                                    errors++;
+                                                } else {
+                                                    uint8_t size = (instruction.opcode >> 13) & 3;
+                                                    if(size != reg->size) {
+                                                        std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *$1 << std::endl;
+                                                        errors++;
+                                                    } else {
+                                                        binarydata.push_back(reg->address);
+                                                    }
+                                                }
+                                                uint64_t *val = (uint64_t*)$2->at(0)->second;
                                                 for(size_t i = 0; i < 4; i++) binarydata.push_back(0);
                                                 for(size_t i = 0; i < 8; i++) binarydata.push_back((unsigned char)((*val & ((uint64_t)0xFF << (8 * (7 - i)))) >> (8 * (7 - i))));
                                                 break;
@@ -243,9 +308,20 @@ instructiongroup    : STRING parametergroup ';' {
                                                     break;
                                                 }
                                                 case 2: {
-                                                    uint64_t *val = (uint64_t*)$2->at(0)->second;
-                                                    binarydata.push_back((unsigned char)(*val & 0xFF));
-                                                    for(size_t i = 0; i < 5; i++) binarydata.push_back(0);
+                                                    register_t *reg = (register_t*)$2->at(0)->second;
+                                                    if(!reg) {
+                                                        std::cerr << "line " << curline << ": " << "Error! Invalid register" << std::endl;
+                                                        errors++;
+                                                    } else {
+                                                        uint8_t size = (instruction.opcode >> 13) & 3;
+                                                        if(size != reg->size) {
+                                                            std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *$1 << std::endl;
+                                                            errors++;
+                                                        } else {
+                                                            binarydata.push_back(reg->address);
+                                                            for(size_t i = 0; i < 5; i++) binarydata.push_back(0);
+                                                        }
+                                                    }
                                                     break;
                                                 }
                                                 case 3: {
@@ -268,22 +344,45 @@ instructiongroup    : STRING parametergroup ';' {
                                             switch($2->at(0)->first) {
                                                 /* case 1 doesn't exist here */
                                                 case 2: {
-                                                    uint64_t *val = (uint64_t*)$2->at(0)->second;
-                                                    binarydata.push_back((unsigned char)(*val & 0xFF));
+                                                    register_t *reg = (register_t*)$2->at(0)->second;
+                                                    if(!reg) {
+                                                        std::cerr << "line " << curline << ": " << "Error! Invalid register" << std::endl;
+                                                        errors++;
+                                                    } else {
+                                                        uint8_t size = (instruction.opcode >> 13) & 3;
+                                                        if(size != reg->size) {
+                                                            std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *$1 << std::endl;
+                                                            errors++;
+                                                        } else {
+                                                            binarydata.push_back(reg->address);
+                                                        }
+                                                    }
                                                     switch($2->at(1)->first) {
                                                         case 1: {
                                                             binarydata.push_back(0);
-                                                            val = (uint64_t*)$2->at(1)->second;
+                                                            uint64_t *val = (uint64_t*)$2->at(1)->second;
                                                             for(size_t i = 0; i < 4; i++) binarydata.push_back((unsigned char)((*val & ((uint64_t)0xFF << (4 * (3 - i)))) >> (4 * (3 - i))));
                                                             break;
                                                         }
                                                         case 2: {
-                                                            val = (uint64_t*)$2->at(1)->second;
-                                                            binarydata.push_back((unsigned char)(*val & 0xFF));
-                                                            for(size_t i = 0; i < 4; i++) binarydata.push_back(0);
+                                                            reg = (register_t*)$2->at(1)->second;
+                                                            if(!reg) {
+                                                                std::cerr << "line " << curline << ": " << "Error! Invalid register" << std::endl;
+                                                                errors++;
+                                                            } else {
+                                                                uint8_t size = (instruction.opcode >> 13) & 3;
+                                                                if(size != reg->size) {
+                                                                    std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *$1 << std::endl;
+                                                                    errors++;
+                                                                } else {
+                                                                    binarydata.push_back(reg->address);
+                                                                    for(size_t i = 0; i < 4; i++) binarydata.push_back(0);
+                                                                }
+                                                            }
                                                             break;
                                                         }
                                                         case 3: {
+                                                            uint64_t* val = (uint64_t*)$2->at(1)->second;
                                                             binarydata.push_back(0xFF);
                                                             for(size_t i = 0; i < 4; i++) binarydata.push_back((unsigned char)((*val & ((uint64_t)0xFF << (4 * (3 - i)))) >> (4 * (3 - i))));
                                                             break;
@@ -307,9 +406,20 @@ instructiongroup    : STRING parametergroup ';' {
                                                             break;
                                                         }
                                                         case 2: {
-                                                            uint64_t *val = (uint64_t*)$2->at(1)->second;
-                                                            binarydata.push_back((unsigned char)(*val & 0xFF));
-                                                            for(size_t i = 0; i < 4; i++) binarydata.push_back(0);
+                                                            register_t *reg = (register_t*)$2->at(1)->second;
+                                                            if(!reg) {
+                                                                std::cerr << "line " << curline << ": " << "Error! Invalid register" << std::endl;
+                                                                errors++;
+                                                            } else {
+                                                                uint8_t size = (instruction.opcode >> 13) & 3;
+                                                                if(size != reg->size) {
+                                                                    std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *$1 << std::endl;
+                                                                    errors++;
+                                                                } else {
+                                                                    binarydata.push_back(reg->address);
+                                                                    for(size_t i = 0; i < 4; i++) binarydata.push_back(0);
+                                                                }
+                                                            }
                                                             break;
                                                         }
                                                         /* case 3 doesn't exist here */
@@ -325,11 +435,33 @@ instructiongroup    : STRING parametergroup ';' {
                                         } // argc = 2
                                         case 3: {
                                             // so far argc == 3 only exists for arguments of type 1, 2, 2 so that makes this less complex
-                                            uint64_t *val = (uint64_t*)$2->at(1)->second;
-                                            binarydata.push_back((unsigned char)(*val & 0xFF));
-                                            val = (uint64_t*)$2->at(2)->second;
-                                            binarydata.push_back((unsigned char)(*val & 0xFF));
-                                            val = (uint64_t*)$2->at(0)->second;
+                                            register_t *reg = (register_t*)$2->at(1)->second;
+                                            if(!reg) {
+                                                std::cerr << "line " << curline << ": " << "Error! Invalid register" << std::endl;
+                                                errors++;
+                                            } else {
+                                                uint8_t size = (instruction.opcode >> 13) & 3;
+                                                if(size != reg->size) {
+                                                    std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *$1 << std::endl;
+                                                    errors++;
+                                                } else {
+                                                    binarydata.push_back(reg->address);
+                                                }
+                                            }
+                                            reg = (register_t*)$2->at(2)->second;
+                                            if(!reg) {
+                                                std::cerr << "line " << curline << ": " << "Error! Invalid register" << std::endl;
+                                                errors++;
+                                            } else {
+                                                uint8_t size = (instruction.opcode >> 13) & 3;
+                                                if(size != reg->size) {
+                                                    std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *$1 << std::endl;
+                                                    errors++;
+                                                } else {
+                                                    binarydata.push_back(reg->address);
+                                                }
+                                            }
+                                            uint64_t *val = (uint64_t*)$2->at(0)->second;
                                             for(size_t i = 0; i < 4; i++) binarydata.push_back((unsigned char)((*val & ((uint64_t)0xFF << (4 * (3 - i)))) >> (4 * (3 - i))));
                                             break;
                                         } // argc = 3

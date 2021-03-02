@@ -495,7 +495,7 @@ static const yytype_int8 yytranslate[] =
 static const yytype_int16 yyrline[] =
 {
        0,    39,    39,    45,    51,    57,    63,    69,    74,    80,
-      83,    87,    92,   353,   358,   359,   360,   361
+      83,    87,    92,   485,   490,   491,   492,   493
 };
 #endif
 
@@ -1137,7 +1137,7 @@ yyreduce:
                                {
                         (yyval.vptr) = new std::pair<uint8_t, void*>;
                         (yyval.vptr)->first = 2;
-                        (yyval.vptr)->second = (void*)(yyvsp[0].sval);
+                        (yyval.vptr)->second = (void*)find(registers, *(yyvsp[0].sval));
                     }
 #line 1143 "asm.tab.cc"
     break;
@@ -1222,9 +1222,20 @@ yyreduce:
                                                         break;
                                                     }
                                                     case 2: {
-                                                        uint64_t *val = (uint64_t*)(yyvsp[-1].vptrvec)->at(0)->second;
-                                                        binarydata.push_back((unsigned char)(*val & 0xFF));
-                                                        for(size_t i = 0; i < 13; i++) binarydata.push_back(0);
+                                                        register_t *val = (register_t*)(yyvsp[-1].vptrvec)->at(0)->second;
+                                                        if(!val) {
+                                                            std::cerr << "line " << curline << ": " << "Error! Invalid register" << std::endl;
+                                                            errors++;
+                                                        } else {
+                                                            uint8_t size = (instruction.opcode >> 13) & 3;
+                                                            if(size != val->size) {
+                                                                std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *(yyvsp[-2].sval) << std::endl;
+                                                                errors++;
+                                                            } else {
+                                                                binarydata.push_back(val->address);
+                                                                for(size_t i = 0; i < 13; i++) binarydata.push_back(0);
+                                                            }
+                                                        }
                                                         break;
                                                     }
                                                     case 3: {
@@ -1247,22 +1258,45 @@ yyreduce:
                                                 switch((yyvsp[-1].vptrvec)->at(0)->first) {
                                                     /* case 1 doesn't exist here */
                                                     case 2: {
-                                                        uint64_t *val = (uint64_t*)(yyvsp[-1].vptrvec)->at(0)->second;
-                                                        binarydata.push_back((unsigned char)(*val & 0xFF));
+                                                        register_t *reg = (register_t*)(yyvsp[-1].vptrvec)->at(0)->second;
+                                                        if(!reg) {
+                                                            std::cerr << "line " << curline << ": " << "Error! Invalid register" << std::endl;
+                                                            errors++;
+                                                        } else {
+                                                            uint8_t size = (instruction.opcode >> 13) & 3;
+                                                            if(size != reg->size) {
+                                                                std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *(yyvsp[-2].sval) << std::endl;
+                                                                errors++;
+                                                            } else {
+                                                                binarydata.push_back(reg->address);
+                                                            }
+                                                        }
                                                         switch((yyvsp[-1].vptrvec)->at(1)->first) {
                                                             case 1: {
                                                                 for(size_t i = 0; i < 5; i++) binarydata.push_back(0);
-                                                                val = (uint64_t*)(yyvsp[-1].vptrvec)->at(1)->second;
+                                                                uint64_t *val = (uint64_t*)(yyvsp[-1].vptrvec)->at(1)->second;
                                                                 for(size_t i = 0; i < 8; i++) binarydata.push_back((unsigned char)((*val & ((uint64_t)0xFF << (8 * (7 - i)))) >> (8 * (7 - i))));
                                                                 break;
                                                             }
                                                             case 2: {
-                                                                val = (uint64_t*)(yyvsp[-1].vptrvec)->at(1)->second;
-                                                                binarydata.push_back((unsigned char)(*val & 0xFF));
-                                                                for(size_t i = 0; i < 12; i++) binarydata.push_back(0);
+                                                                reg = (register_t*)(yyvsp[-1].vptrvec)->at(1)->second;
+                                                                if(!reg) {
+                                                                    std::cerr << "line " << curline << ": " << "Error! Invalid register" << std::endl;
+                                                                    errors++;
+                                                                } else {
+                                                                    uint8_t size = (instruction.opcode >> 13) & 3;
+                                                                    if(size != reg->size) {
+                                                                        std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *(yyvsp[-2].sval) << std::endl;
+                                                                        errors++;
+                                                                    } else {
+                                                                        binarydata.push_back(reg->address);
+                                                                        for(size_t i = 0; i < 12; i++) binarydata.push_back(0);
+                                                                    }
+                                                                }
                                                                 break;
                                                             }
                                                             case 3: {
+                                                                uint64_t *val = (uint64_t*)(yyvsp[-1].vptrvec)->at(1)->second;
                                                                 binarydata.push_back(0xFF);
                                                                 for(size_t i = 0; i < 4; i++) binarydata.push_back(0);
                                                                 for(size_t i = 0; i < 8; i++) binarydata.push_back((unsigned char)((*val & ((uint64_t)0xFF << (8 * (7 - i)))) >> (8 * (7 - i))));
@@ -1287,10 +1321,19 @@ yyreduce:
                                                                 break;
                                                             }
                                                             case 2: {
-                                                                uint64_t *val = (uint64_t*)(yyvsp[-1].vptrvec)->at(1)->second;
-                                                                binarydata.push_back((unsigned char)(*val & 0xFF));
-                                                                for(size_t i = 0; i < 4; i++) binarydata.push_back(0);
-                                                                break;
+                                                                register_t *reg = (register_t*)(yyvsp[-1].vptrvec)->at(1)->second;
+                                                                if(!reg) {
+                                                                    std::cerr << "line " << curline << ": " << "Error! Invalid register" << std::endl;
+                                                                    errors++;
+                                                                } else {
+                                                                    uint8_t size = (instruction.opcode >> 13) & 3;
+                                                                    if(size != reg->size) {
+                                                                        std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *(yyvsp[-2].sval) << std::endl;
+                                                                        errors++;
+                                                                    } else {
+                                                                        binarydata.push_back(reg->address);
+                                                                    }
+                                                                }
                                                             }
                                                             /* case 3 doesn't exist here */
                                                             /* case 4 doesn't exist here */
@@ -1305,11 +1348,33 @@ yyreduce:
                                             } // argc = 2
                                             case 3: {
                                                 // so far argc == 3 only exists for arguments of type 1, 2, 2 so that makes this less complex
-                                                uint64_t *val = (uint64_t*)(yyvsp[-1].vptrvec)->at(1)->second;
-                                                binarydata.push_back((unsigned char)(*val & 0xFF));
-                                                val = (uint64_t*)(yyvsp[-1].vptrvec)->at(2)->second;
-                                                binarydata.push_back((unsigned char)(*val & 0xFF));
-                                                val = (uint64_t*)(yyvsp[-1].vptrvec)->at(0)->second;
+                                                register_t *reg = (register_t*)(yyvsp[-1].vptrvec)->at(1)->second;
+                                                if(!reg) {
+                                                    std::cerr << "line " << curline << ": " << "Error! Invalid register" << std::endl;
+                                                    errors++;
+                                                } else {
+                                                    uint8_t size = (instruction.opcode >> 13) & 3;
+                                                    if(size != reg->size) {
+                                                        std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *(yyvsp[-2].sval) << std::endl;
+                                                        errors++;
+                                                    } else {
+                                                        binarydata.push_back(reg->address);
+                                                    }
+                                                }
+                                                reg = (register_t*)(yyvsp[-1].vptrvec)->at(2)->second;
+                                                if(!reg) {
+                                                    std::cerr << "line " << curline << ": " << "Error! Invalid register" << std::endl;
+                                                    errors++;
+                                                } else {
+                                                    uint8_t size = (instruction.opcode >> 13) & 3;
+                                                    if(size != reg->size) {
+                                                        std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *(yyvsp[-2].sval) << std::endl;
+                                                        errors++;
+                                                    } else {
+                                                        binarydata.push_back(reg->address);
+                                                    }
+                                                }
+                                                uint64_t *val = (uint64_t*)(yyvsp[-1].vptrvec)->at(0)->second;
                                                 for(size_t i = 0; i < 4; i++) binarydata.push_back(0);
                                                 for(size_t i = 0; i < 8; i++) binarydata.push_back((unsigned char)((*val & ((uint64_t)0xFF << (8 * (7 - i)))) >> (8 * (7 - i))));
                                                 break;
@@ -1334,9 +1399,20 @@ yyreduce:
                                                     break;
                                                 }
                                                 case 2: {
-                                                    uint64_t *val = (uint64_t*)(yyvsp[-1].vptrvec)->at(0)->second;
-                                                    binarydata.push_back((unsigned char)(*val & 0xFF));
-                                                    for(size_t i = 0; i < 5; i++) binarydata.push_back(0);
+                                                    register_t *reg = (register_t*)(yyvsp[-1].vptrvec)->at(0)->second;
+                                                    if(!reg) {
+                                                        std::cerr << "line " << curline << ": " << "Error! Invalid register" << std::endl;
+                                                        errors++;
+                                                    } else {
+                                                        uint8_t size = (instruction.opcode >> 13) & 3;
+                                                        if(size != reg->size) {
+                                                            std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *(yyvsp[-2].sval) << std::endl;
+                                                            errors++;
+                                                        } else {
+                                                            binarydata.push_back(reg->address);
+                                                            for(size_t i = 0; i < 5; i++) binarydata.push_back(0);
+                                                        }
+                                                    }
                                                     break;
                                                 }
                                                 case 3: {
@@ -1359,22 +1435,45 @@ yyreduce:
                                             switch((yyvsp[-1].vptrvec)->at(0)->first) {
                                                 /* case 1 doesn't exist here */
                                                 case 2: {
-                                                    uint64_t *val = (uint64_t*)(yyvsp[-1].vptrvec)->at(0)->second;
-                                                    binarydata.push_back((unsigned char)(*val & 0xFF));
+                                                    register_t *reg = (register_t*)(yyvsp[-1].vptrvec)->at(0)->second;
+                                                    if(!reg) {
+                                                        std::cerr << "line " << curline << ": " << "Error! Invalid register" << std::endl;
+                                                        errors++;
+                                                    } else {
+                                                        uint8_t size = (instruction.opcode >> 13) & 3;
+                                                        if(size != reg->size) {
+                                                            std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *(yyvsp[-2].sval) << std::endl;
+                                                            errors++;
+                                                        } else {
+                                                            binarydata.push_back(reg->address);
+                                                        }
+                                                    }
                                                     switch((yyvsp[-1].vptrvec)->at(1)->first) {
                                                         case 1: {
                                                             binarydata.push_back(0);
-                                                            val = (uint64_t*)(yyvsp[-1].vptrvec)->at(1)->second;
+                                                            uint64_t *val = (uint64_t*)(yyvsp[-1].vptrvec)->at(1)->second;
                                                             for(size_t i = 0; i < 4; i++) binarydata.push_back((unsigned char)((*val & ((uint64_t)0xFF << (4 * (3 - i)))) >> (4 * (3 - i))));
                                                             break;
                                                         }
                                                         case 2: {
-                                                            val = (uint64_t*)(yyvsp[-1].vptrvec)->at(1)->second;
-                                                            binarydata.push_back((unsigned char)(*val & 0xFF));
-                                                            for(size_t i = 0; i < 4; i++) binarydata.push_back(0);
+                                                            reg = (register_t*)(yyvsp[-1].vptrvec)->at(1)->second;
+                                                            if(!reg) {
+                                                                std::cerr << "line " << curline << ": " << "Error! Invalid register" << std::endl;
+                                                                errors++;
+                                                            } else {
+                                                                uint8_t size = (instruction.opcode >> 13) & 3;
+                                                                if(size != reg->size) {
+                                                                    std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *(yyvsp[-2].sval) << std::endl;
+                                                                    errors++;
+                                                                } else {
+                                                                    binarydata.push_back(reg->address);
+                                                                    for(size_t i = 0; i < 4; i++) binarydata.push_back(0);
+                                                                }
+                                                            }
                                                             break;
                                                         }
                                                         case 3: {
+                                                            uint64_t* val = (uint64_t*)(yyvsp[-1].vptrvec)->at(1)->second;
                                                             binarydata.push_back(0xFF);
                                                             for(size_t i = 0; i < 4; i++) binarydata.push_back((unsigned char)((*val & ((uint64_t)0xFF << (4 * (3 - i)))) >> (4 * (3 - i))));
                                                             break;
@@ -1398,9 +1497,20 @@ yyreduce:
                                                             break;
                                                         }
                                                         case 2: {
-                                                            uint64_t *val = (uint64_t*)(yyvsp[-1].vptrvec)->at(1)->second;
-                                                            binarydata.push_back((unsigned char)(*val & 0xFF));
-                                                            for(size_t i = 0; i < 4; i++) binarydata.push_back(0);
+                                                            register_t *reg = (register_t*)(yyvsp[-1].vptrvec)->at(1)->second;
+                                                            if(!reg) {
+                                                                std::cerr << "line " << curline << ": " << "Error! Invalid register" << std::endl;
+                                                                errors++;
+                                                            } else {
+                                                                uint8_t size = (instruction.opcode >> 13) & 3;
+                                                                if(size != reg->size) {
+                                                                    std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *(yyvsp[-2].sval) << std::endl;
+                                                                    errors++;
+                                                                } else {
+                                                                    binarydata.push_back(reg->address);
+                                                                    for(size_t i = 0; i < 4; i++) binarydata.push_back(0);
+                                                                }
+                                                            }
                                                             break;
                                                         }
                                                         /* case 3 doesn't exist here */
@@ -1416,11 +1526,33 @@ yyreduce:
                                         } // argc = 2
                                         case 3: {
                                             // so far argc == 3 only exists for arguments of type 1, 2, 2 so that makes this less complex
-                                            uint64_t *val = (uint64_t*)(yyvsp[-1].vptrvec)->at(1)->second;
-                                            binarydata.push_back((unsigned char)(*val & 0xFF));
-                                            val = (uint64_t*)(yyvsp[-1].vptrvec)->at(2)->second;
-                                            binarydata.push_back((unsigned char)(*val & 0xFF));
-                                            val = (uint64_t*)(yyvsp[-1].vptrvec)->at(0)->second;
+                                            register_t *reg = (register_t*)(yyvsp[-1].vptrvec)->at(1)->second;
+                                            if(!reg) {
+                                                std::cerr << "line " << curline << ": " << "Error! Invalid register" << std::endl;
+                                                errors++;
+                                            } else {
+                                                uint8_t size = (instruction.opcode >> 13) & 3;
+                                                if(size != reg->size) {
+                                                    std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *(yyvsp[-2].sval) << std::endl;
+                                                    errors++;
+                                                } else {
+                                                    binarydata.push_back(reg->address);
+                                                }
+                                            }
+                                            reg = (register_t*)(yyvsp[-1].vptrvec)->at(2)->second;
+                                            if(!reg) {
+                                                std::cerr << "line " << curline << ": " << "Error! Invalid register" << std::endl;
+                                                errors++;
+                                            } else {
+                                                uint8_t size = (instruction.opcode >> 13) & 3;
+                                                if(size != reg->size) {
+                                                    std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *(yyvsp[-2].sval) << std::endl;
+                                                    errors++;
+                                                } else {
+                                                    binarydata.push_back(reg->address);
+                                                }
+                                            }
+                                            uint64_t *val = (uint64_t*)(yyvsp[-1].vptrvec)->at(0)->second;
                                             for(size_t i = 0; i < 4; i++) binarydata.push_back((unsigned char)((*val & ((uint64_t)0xFF << (4 * (3 - i)))) >> (4 * (3 - i))));
                                             break;
                                         } // argc = 3
@@ -1440,20 +1572,20 @@ yyreduce:
                         delete (yyvsp[-1].vptrvec);
                         delete (yyvsp[-2].sval);
                     }
-#line 1444 "asm.tab.cc"
+#line 1576 "asm.tab.cc"
     break;
 
   case 13: /* label: "string" ':'  */
-#line 353 "asm.yy"
+#line 485 "asm.yy"
                                  {
                         addlabel(*(yyvsp[-1].sval));
                         delete (yyvsp[-1].sval);
                     }
-#line 1453 "asm.tab.cc"
+#line 1585 "asm.tab.cc"
     break;
 
 
-#line 1457 "asm.tab.cc"
+#line 1589 "asm.tab.cc"
 
       default: break;
     }
@@ -1647,7 +1779,7 @@ yyreturn:
   return yyresult;
 }
 
-#line 363 "asm.yy"
+#line 495 "asm.yy"
 
 
 void yyerror(const char *s) {

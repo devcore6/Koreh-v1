@@ -15,45 +15,24 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\instruction.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\version.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\templates.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\asm.h">
+    <ClInclude Include="..\include\register.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\shared.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="asm.tab.hh">
+    <ClInclude Include="..\include\templates.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\register.h">
+    <ClInclude Include="..\include\version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="instruction.cpp">
+    <ClCompile Include="..\shared\register.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="asm.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="lex.yy.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="asm.tab.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\register.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
