@@ -66,9 +66,9 @@ int main(int argc, char* const argv[]) {
 						i += 2;
 						uint64_t size = 0;
 						for(int j = 0; argv[i][j]; j++) switch(argv[i][j]) {
-							case 'K': { argv[i][j] = argv[i][j + 1] = 0; size = atoi(argv[i]) * 1024; break; }
-							case 'M': { argv[i][j] = argv[i][j + 1] = 0; size = atoi(argv[i]) * 1048576; break; }
-							case 'G': { argv[i][j] = argv[i][j + 1] = 0; size = atoi(argv[i]) * 1073741824; break; }
+							case 'K': { argv[i][j] = argv[i][j + 1] = 0; size = atoll(argv[i]) * 1024; break; }
+							case 'M': { argv[i][j] = argv[i][j + 1] = 0; size = atoll(argv[i]) * 1048576; break; }
+							case 'G': { argv[i][j] = argv[i][j + 1] = 0; size = atoll(argv[i]) * 1073741824; break; }
 						}
 						makedriveimage(argv[i - 1], size);
 					} else {
@@ -82,9 +82,9 @@ int main(int argc, char* const argv[]) {
 					if(i + 1 < argc) {
 						i++;
 						for(int j = 0; argv[i][j]; j++) switch(argv[i][j]) {
-							case 'K': { argv[i][j] = argv[i][j + 1] = 0; memorysize = atoi(argv[i]) * 1024; break; }
-							case 'M': { argv[i][j] = argv[i][j + 1] = 0; memorysize = atoi(argv[i]) * 1048576; break; }
-							case 'G': { argv[i][j] = argv[i][j + 1] = 0; memorysize = atoi(argv[i]) * 1073741824; break; }
+							case 'K': { argv[i][j] = argv[i][j + 1] = 0; memorysize = atoll(argv[i]) * 1024; break; }
+							case 'M': { argv[i][j] = argv[i][j + 1] = 0; memorysize = atoll(argv[i]) * 1048576; break; }
+							case 'G': { argv[i][j] = argv[i][j + 1] = 0; memorysize = atoll(argv[i]) * 1073741824; break; }
 						}
 					} else {
 						std::cerr << "option -m requires an argument after it.\n";
