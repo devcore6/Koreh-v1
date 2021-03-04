@@ -1,9 +1,13 @@
 #pragma once
 #include <shared.h>
 
+constexpr uint32_t version = (0 << 24) | (0 << 16) | (1 << 8) | 1; // release << 24 | major << 16 | minor << 8 | 1=alpha 2=beta
+
 extern uint64_t cores;
 extern uint64_t frequency;
 extern uint8_t bits;
+extern uint64_t memorysize;
+extern uint8_t* memory;
 
 struct reg_t {
 	bool upper = false;
@@ -32,5 +36,10 @@ struct core_t {
 
 struct function_t {
 	instruction_t instruction;
-	void (*function)(uint64_t rirval, uint64_t ridrval, core_t* core);
+	void (*function)(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t* core);
 };
+
+extern std::vector<function_t> functions;
+
+extern uint64_t readmemory(uint64_t address, uint8_t size);
+extern void writememory(uint64_t data, uint64_t address, uint8_t size);

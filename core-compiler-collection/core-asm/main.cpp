@@ -73,7 +73,7 @@ int main(int argc, char* const argv[]) {
 					if(!strcmp(argv[i] + 2, "32")) {
 						mode = 32;
 					} else if(!strcmp(argv[i] + 2, "64")) {
-						mode = 32;
+						mode = 64;
 					} else {
 						std::cerr << "unrecognized option \"" << argv[i] << "\".\n";
 						std::cout << "try option -h for a help message." << std::endl;

@@ -174,3 +174,102 @@ regs_t::regs_t() {
 regs_t::~regs_t() {
 	for(uint8_t i = 0; i < data.size(); i++) delete data[i];
 }
+
+std::vector<function_t> functions;
+
+void addfunction(void (*function)(instruction_t instruction, uint64_t rrval, uint64_t ridrval, core_t* core), size_t id) {
+	if(id > validinstructions.size()) return;
+	function_t func = { validinstructions[id], function };
+	functions.push_back(func);
+}
+
+uint8_t getregister(uint64_t rirval, bool first = true) {
+	return (uint8_t)((first ? (rirval >> 40) : (rirval >> 32)) & 0x00000000000000FF);
+}
+
+uint8_t getsize(instruction_t instruction) {
+	return (uint8_t)((instruction.opcode >> 13) & 3);
+}
+
+register_t findreg(uint8_t address) {
+	for(size_t i = 0; i < registers.size(); i++) if(registers[i].address == address) return registers[i];
+	return register_t();
+}
+
+uint64_t readmemory(uint64_t address, uint8_t size) {
+	uint64_t out = 0;
+	if(address + size > memorysize) { /* todo: fault */ }
+	if(size > 8) return 0;
+	for(uint8_t i = 0; i < size; i++) out |= memory[address + i] << (8 * i);
+	return out;
+}
+
+void writememory(uint64_t data, uint64_t address, uint8_t size) {
+	if(address + size > memorysize) { /* todo: fault */ }
+	if(size > 8) return;
+	for(uint8_t i = 0; i < size; i++) memory[address + i] = (uint8_t)((data >> (8 * i)) & 0xFF);
+}
+
+
+// BEGIN INSTRUCTION SET
+
+void __mov(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t* core) {
+	uint64_t value = 0;
+	uint8_t size = getsize(instruction);
+	switch(instruction.arg2) {
+		case 0: break; // todo: fault
+		case 1: {
+			value = ridrval;
+			switch(size) {
+				case 0: { value &= 0x00000000000000FF; break; }
+				case 1: { value &= 0x000000000000FFFF; break; }
+				case 2: { value &= 0x00000000FFFFFFFF; break; }
+				case 3: { if(bits == 32) { /* todo: fault */ } break; }
+			}
+			break;
+		}
+		case 2: {
+			value = core->regs[findreg(getregister(rirval, false))]->getvalue();
+			// todo: fault if size doesn't match
+			switch(size) {
+				case 0: { value &= 0x00000000000000FF; break; }
+				case 1: { value &= 0x000000000000FFFF; break; }
+				case 2: { value &= 0x00000000FFFFFFFF; break; }
+				case 3: { if(bits == 32) { /* todo: fault */ } break; }
+			}
+			break;
+		}
+		case 3: {
+			switch(size) {
+				case 0: { value = readmemory(ridrval, 1); break; }
+				case 1: { value = readmemory(ridrval, 2); break; }
+				case 2: { value = readmemory(ridrval, 4); break; }
+				case 3: { if(bits == 32) { /* todo: fault */ } else value = readmemory(ridrval, 8); break; }
+			}
+			break;
+		}
+	}
+	switch(instruction.arg1) {
+		case 0:
+		case 1: break; // todo: fault
+		case 2: {
+			core->regs[findreg(getregister(rirval, true))]->setvalue(value);
+			break;
+		}
+		case 3: {
+			writememory(value, ridrval, size);
+			break;
+		}
+	}
+}
+
+// END INSTRUCTION SET
+
+
+
+bool initfunctions() {
+	for(size_t i = 0; i < 26; i++) addfunction(&__mov, i); // 26 MOV variations from validinstructions[0...25]
+	return true;
+}
+
+bool initedfunctions = initfunctions();
