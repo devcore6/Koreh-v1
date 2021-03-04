@@ -26,9 +26,10 @@ void help() {
 	std::cout << "options:\n";
 	std::cout << "         -h                               show this help message\n";
 	std::cout << "         -d <driveimage>                  uses a given drive image.\n";
-	std::cout << "         -c <driveimage> <size[K|M|G]>    Creates a drive image <driveimage> of the given size.\n";
+	std::cout << "         -c <driveimage> <size[K|M|G]>    creates a drive image <driveimage> of the given size.\n";
+	std::cout << "         -m <size[K|M|G]>                 specifies the amount of RAM to give the machine, default is 256MB.\n";
 	std::cout << "         -V                               print version information.\n";
-	std::cout << "         --32                             emulates a 32-bit system.";
+	std::cout << "         --32                             emulates a 32-bit system.\n";
 	std::cout << "         --64                             emulates a 64-bit system.";
 	std::cout << std::endl;
 
@@ -77,6 +78,21 @@ int main(int argc, char* const argv[]) {
 					}
 					return 0;
 				}
+				case 'm': {
+					if(i + 1 < argc) {
+						i++;
+						for(int j = 0; argv[i][j]; j++) switch(argv[i][j]) {
+							case 'K': { argv[i][j] = argv[i][j + 1] = 0; memorysize = atoi(argv[i]) * 1024; break; }
+							case 'M': { argv[i][j] = argv[i][j + 1] = 0; memorysize = atoi(argv[i]) * 1048576; break; }
+							case 'G': { argv[i][j] = argv[i][j + 1] = 0; memorysize = atoi(argv[i]) * 1073741824; break; }
+						}
+					} else {
+						std::cerr << "option -m requires an argument after it.\n";
+						std::cout << "try option -h for a help message." << std::endl;
+						return -1;
+					}
+					return 0;
+				}
 				case 'V': {
 					printversion();
 					return 0;
@@ -112,7 +128,19 @@ int main(int argc, char* const argv[]) {
 		return -1;
 	}
 	
-	memory = new uint8_t[memorysize];
+	try {
+		memory = new uint8_t[memorysize];
+	} catch(std::bad_alloc& e) {
+		uint64_t humanreadable = memorysize;
+		char unit = 0;
+		if(humanreadable > 1024) { humanreadable /= 1024; unit = 'K'; }
+		if(humanreadable > 1024) { humanreadable /= 1024; unit = 'M'; }
+		if(humanreadable > 1024) { humanreadable /= 1024; unit = 'G'; }
+		std::cerr << "Failed to allocate memory - not enough system memory available (tried to allocate ";
+		std::cerr << humanreadable << unit << "B.)" << std::endl;
+		std::cout << "Try allocating less memory with the -m option." << std::endl;
+		return -2;
+	}
 
 
 
