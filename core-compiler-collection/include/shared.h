@@ -10,3 +10,4 @@
 #include <templates.h>
 #include <register.h>
 #include <instruction.h>
+#include <interrupts.h>

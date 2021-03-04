@@ -148,6 +148,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\include\instruction.h" />
+    <ClInclude Include="..\include\interrupts.h" />
     <ClInclude Include="..\include\register.h" />
     <ClInclude Include="..\include\shared.h" />
     <ClInclude Include="..\include\templates.h" />

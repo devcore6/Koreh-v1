@@ -171,7 +171,7 @@ bool initinstructions() {
 	addinstruction("ret", 0b1110000000001111);
 	addinstruction("int", 0b0000000000010000, 2);
 	addinstruction("int", 0b0000000000010000, 3);
-	addinstruction("int", 0b0000000000010000, 3);
+	addinstruction("int", 0b1000000000010000, 3);
 	addinstruction("int", 0b0000000000010000, 1);
 	addinstruction("cli", 0b0000000000010001);
 	addinstruction("sti", 0b0000000000010010);
@@ -438,6 +438,7 @@ bool initinstructions() {
 	addinstruction("mrc", 0b0010000000101000, 1, 2, 2);
 	addinstruction("mrcl", 0b0100000000101000, 1, 2, 2);
 	addinstruction("mrcq", 0b1110000000101000, 1, 2, 2);
+	addinstruction("cpuid", 0b0000000000101001);
 	return true;
 }
 

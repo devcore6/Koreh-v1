@@ -39,6 +39,18 @@ reg_t::~reg_t() {
 	if(owner) delete value;
 }
 
+void push(uint64_t value, core_t *core) {
+	// todo
+}
+
+void fault(uint8_t intcode, uint64_t _rax, uint64_t _rbx, core_t *core) {
+	push(core->regs[rax]->getvalue(), core);
+	push(core->regs[rbx]->getvalue(), core);
+	core->regs[rax]->setvalue(_rax);
+	core->regs[rbx]->setvalue(_rbx);
+	throw intcode;
+}
+
 reg_t* regs_t::operator[](register_t reg) {
 	for(uint8_t i = 0; i < data.size(); i++) if(data[i]->address == reg.address) return data[i];
 	return NULL;
@@ -196,16 +208,16 @@ register_t findreg(uint8_t address) {
 	return register_t();
 }
 
-uint64_t readmemory(uint64_t address, uint8_t size) {
+uint64_t readmemory(uint64_t address, uint8_t size, core_t *core) {
 	uint64_t out = 0;
-	if(address + size > memorysize) { /* todo: fault */ }
+	if(address + size > memorysize) { throw(INT_BOUNDS, address + size, 0, core); }
 	if(size > 8) return 0;
-	for(uint8_t i = 0; i < size; i++) out |= memory[address + i] << (8 * i);
+	for(uint8_t i = 0; i < size; i++) out |= memory[address + i] << (uint64_t)(8 * i);
 	return out;
 }
 
-void writememory(uint64_t data, uint64_t address, uint8_t size) {
-	if(address + size > memorysize) { /* todo: fault */ }
+void writememory(uint64_t data, uint64_t address, uint8_t size, core_t* core) {
+	if(address + size > memorysize) { throw(INT_BOUNDS, address + size, 0, core); }
 	if(size > 8) return;
 	for(uint8_t i = 0; i < size; i++) memory[address + i] = (uint8_t)((data >> (8 * i)) & 0xFF);
 }
@@ -217,14 +229,14 @@ void __mov(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 	uint64_t value = 0;
 	uint8_t size = getsize(instruction);
 	switch(instruction.arg2) {
-		case 0: break; // todo: fault
+		case 0: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 1: {
 			value = ridrval;
 			switch(size) {
 				case 0: { value &= 0x00000000000000FF; break; }
 				case 1: { value &= 0x000000000000FFFF; break; }
 				case 2: { value &= 0x00000000FFFFFFFF; break; }
-				case 3: { if(bits == 32) { /* todo: fault */ } break; }
+				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); } break; }
 			}
 			break;
 		}
@@ -235,31 +247,42 @@ void __mov(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 				case 0: { value &= 0x00000000000000FF; break; }
 				case 1: { value &= 0x000000000000FFFF; break; }
 				case 2: { value &= 0x00000000FFFFFFFF; break; }
-				case 3: { if(bits == 32) { /* todo: fault */ } break; }
+				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); } break; }
 			}
 			break;
 		}
 		case 3: {
 			switch(size) {
-				case 0: { value = readmemory(ridrval, 1); break; }
-				case 1: { value = readmemory(ridrval, 2); break; }
-				case 2: { value = readmemory(ridrval, 4); break; }
-				case 3: { if(bits == 32) { /* todo: fault */ } else value = readmemory(ridrval, 8); break; }
+				case 0: { value = readmemory(ridrval, 1, core); break; }
+				case 1: { value = readmemory(ridrval, 2, core); break; }
+				case 2: { value = readmemory(ridrval, 4, core); break; }
+				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); }
+					  else value = readmemory(ridrval, 8, core); break; }
 			}
 			break;
 		}
 	}
 	switch(instruction.arg1) {
 		case 0:
-		case 1: break; // todo: fault
+		case 1: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 2: {
 			core->regs[findreg(getregister(rirval, true))]->setvalue(value);
 			break;
 		}
 		case 3: {
-			writememory(value, ridrval, size);
+			writememory(value, ridrval, size, core);
 			break;
 		}
+	}
+}
+
+void __load(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t* core) {
+	switch(getsize(instruction)) {
+		case 0: { core->regs[findreg(getregister(rirval, true))]->setvalue(readmemory(ridrval, 1, core)); break; }
+		case 1: { core->regs[findreg(getregister(rirval, true))]->setvalue(readmemory(ridrval, 2, core)); break; }
+		case 2: { core->regs[findreg(getregister(rirval, true))]->setvalue(readmemory(ridrval, 4, core)); break; }
+		case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); }
+			else core->regs[findreg(getregister(rirval, true))]->setvalue(readmemory(ridrval, 8, core)); break; }
 	}
 }
 
@@ -268,7 +291,9 @@ void __mov(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 
 
 bool initfunctions() {
-	for(size_t i = 0; i < 26; i++) addfunction(&__mov, i); // 26 MOV variations from validinstructions[0...25]
+	size_t count = 0;
+	for(size_t i = 0; i < 26; i++) { addfunction(&__mov, count); count++; }
+	for(size_t i = 0; i < 7; i++) { addfunction(&__load, count); count++; }
 	return true;
 }
 
