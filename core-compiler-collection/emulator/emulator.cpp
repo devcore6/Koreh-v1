@@ -210,15 +210,17 @@ register_t findreg(uint8_t address) {
 
 uint64_t readmemory(uint64_t address, uint8_t size, core_t *core) {
 	uint64_t out = 0;
-	if(address + size > memorysize) { throw(INT_BOUNDS, address + size, 0, core); }
+	if(address + size > memorysize) { fault(INT_BOUNDS, address + size, 0, core); return 0;  }
 	if(size > 8) return 0;
+	if(size == 8 && bits == 32) { fault(INT_WRONG_ARCH, address, 0, core); return 0; }
 	for(uint8_t i = 0; i < size; i++) out |= memory[address + i] << (uint64_t)(8 * i);
 	return out;
 }
 
 void writememory(uint64_t data, uint64_t address, uint8_t size, core_t* core) {
-	if(address + size > memorysize) { throw(INT_BOUNDS, address + size, 0, core); }
+	if(address + size > memorysize) { fault(INT_BOUNDS, address + size, 0, core); return;  }
 	if(size > 8) return;
+	if(size == 8 && bits == 32) { fault(INT_WRONG_ARCH, address, 0, core); return; }
 	for(uint8_t i = 0; i < size; i++) memory[address + i] = (uint8_t)((data >> (8 * i)) & 0xFF);
 }
 
@@ -278,12 +280,18 @@ void __mov(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 
 void __load(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t* core) {
 	switch(getsize(instruction)) {
-		case 0: { core->regs[findreg(getregister(rirval, true))]->setvalue(readmemory(ridrval, 1, core)); break; }
-		case 1: { core->regs[findreg(getregister(rirval, true))]->setvalue(readmemory(ridrval, 2, core)); break; }
-		case 2: { core->regs[findreg(getregister(rirval, true))]->setvalue(readmemory(ridrval, 4, core)); break; }
+		case 0: { core->regs[findreg(getregister(rirval, true))]->setvalue(readmemory(core->regs[findreg(getregister(rirval, false))]->getvalue(), 1, core)); break; }
+		case 1: { core->regs[findreg(getregister(rirval, true))]->setvalue(readmemory(core->regs[findreg(getregister(rirval, false))]->getvalue(), 2, core)); break; }
+		case 2: { core->regs[findreg(getregister(rirval, true))]->setvalue(readmemory(core->regs[findreg(getregister(rirval, false))]->getvalue(), 4, core)); break; }
 		case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); }
-			else core->regs[findreg(getregister(rirval, true))]->setvalue(readmemory(ridrval, 8, core)); break; }
+			else core->regs[findreg(getregister(rirval, true))]->setvalue(readmemory(core->regs[findreg(getregister(rirval, false))]->getvalue(), 8, core)); break; }
 	}
+}
+
+void __save(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t* core) {
+	writememory(core->regs[findreg(getregister(rirval, false))]->getvalue(),
+				core->regs[findreg(getregister(rirval, true))]->getvalue(),
+				getsize(instruction), core);
 }
 
 // END INSTRUCTION SET
@@ -294,6 +302,7 @@ bool initfunctions() {
 	size_t count = 0;
 	for(size_t i = 0; i < 26; i++) { addfunction(&__mov, count); count++; }
 	for(size_t i = 0; i < 7; i++) { addfunction(&__load, count); count++; }
+	for(size_t i = 0; i < 7; i++) { addfunction(&__save, count); count++; }
 	return true;
 }
 

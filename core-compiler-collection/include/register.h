@@ -104,3 +104,30 @@ extern register_t ir;
 extern register_t rir;
 extern register_t idr;
 extern register_t ridr;
+
+// FPU registers
+
+extern register_t fax;
+extern register_t dax;
+extern register_t qax;
+extern register_t fbx;
+extern register_t dbx;
+extern register_t qbx;
+extern register_t fcx;
+extern register_t dcx;
+extern register_t qcx;
+extern register_t fdx;
+extern register_t ddx;
+extern register_t qdx;
+extern register_t fex;
+extern register_t dex;
+extern register_t qex;
+extern register_t ffx;
+extern register_t dfx;
+extern register_t qfx;
+extern register_t fgx;
+extern register_t dgx;
+extern register_t qgx;
+extern register_t fhx;
+extern register_t dhx;
+extern register_t qhx;

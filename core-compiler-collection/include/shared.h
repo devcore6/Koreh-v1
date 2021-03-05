@@ -5,6 +5,9 @@
 #include <concepts>				// std::same_as, std::copy_constructible
 #include <fstream>				// std::ifstream, std::ofstream
 #include <filesystem>			// std::filesystem::temp_directory_path, std::filesystem::remove
+#include <thread>				// std::thread, std::this_thread
+#include <future>				// std::future, std::promise, std::future_status
+#include <chrono>				// std::chrono::high_resolution_clock, std::chrono::duration, std::chrono::duration_cast
 
 #include <version.h>
 #include <templates.h>

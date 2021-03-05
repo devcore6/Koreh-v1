@@ -32,6 +32,7 @@ struct regs_t {
 struct core_t {
 	uint64_t id;
 	regs_t regs;
+	std::promise<void> promise;
 };
 
 struct function_t {
@@ -39,6 +40,7 @@ struct function_t {
 	void (*function)(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t* core);
 };
 
+extern std::vector<core_t*> _cores;
 extern std::vector<function_t> functions;
 
 extern uint64_t readmemory(uint64_t address, uint8_t size);

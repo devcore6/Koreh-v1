@@ -1,5 +1,5 @@
 # Registers
-
+## CPU
 | 8b lh addr | 8b lh name | 8b hh addr | 8b hh name | 16b  addr  | 16b name |  32b addr  | 32b name |  64b addr  | 64b name | purpose                                      |
 |------------|------------|------------|------------|------------|----------|------------|----------|------------|----------|----------------------------------------------|
 |  00000001  |    %al     |  00010001  |    %ah     |  00100001  |   %ax    |  00110001  |   %eax   |  01000001  |   %rax   | stores return value from functions           |
@@ -28,3 +28,15 @@
 |    ----    |    ----    |    ----    |    ----    |    ----    |   ----   |  10001000  |   %epc   |  10001001  |   %rpc   | program counter                              |
 |    ----    |    ----    |    ----    |    ----    |    ----    |   ----   |  10001010  |   %ir    |  10001011  |   %rir   | instruction register                         |
 |    ----    |    ----    |    ----    |    ----    |    ----    |   ----   |  10001100  |   %idr   |  10001101  |   %ridr  | instruction data                             |
+
+## FPU
+|  32b addr  | 32b name |  64b addr  | 64b name | 128b addr  | 128b name | purpose                                      |
+|------------|----------|------------|----------|------------|-----------|----------------------------------------------|
+|  11000000  |   %fax   |  11000001  |   %dax   |  11000010  |   %qax    | general purpose register                     |
+|  11000100  |   %fbx   |  11000101  |   %dbx   |  11000110  |   %qbx    | general purpose register                     |
+|  11001000  |   %fcx   |  11001001  |   %dcx   |  11001010  |   %qcx    | general purpose register                     |
+|  11001100  |   %fdx   |  11001101  |   %ddx   |  11001110  |   %qdx    | general purpose register                     |
+|  11010000  |   %fex   |  11010001  |   %dex   |  11010010  |   %qex    | general purpose register                     |
+|  11010100  |   %ffx   |  11010101  |   %dfx   |  11010110  |   %qfx    | general purpose register                     |
+|  11011000  |   %fgx   |  11011001  |   %dgx   |  11011010  |   %qgx    | general purpose register                     |
+|  11011100  |   %fhx   |  11011101  |   %dhx   |  11011110  |   %qhx    | general purpose register                     |

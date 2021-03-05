@@ -97,3 +97,30 @@ register_t ir = addregister("ir", 0b10001010, 2);
 register_t rir = addregister("rir", 0b10001011, 3);
 register_t idr = addregister("idr", 0b10001100, 2);
 register_t ridr = addregister("ridr", 0b10001101, 3);
+
+// FPU registers
+
+register_t fax = addregister("fax", 0b11000000, 2);
+register_t dax = addregister("dax", 0b11000001, 3);
+register_t qax = addregister("qax", 0b11000010, 4);
+register_t fbx = addregister("fbx", 0b11000100, 2);
+register_t dbx = addregister("dbx", 0b11000101, 3);
+register_t qbx = addregister("qbx", 0b11000110, 4);
+register_t fcx = addregister("fcx", 0b11001000, 2);
+register_t dcx = addregister("dcx", 0b11001001, 3);
+register_t qcx = addregister("qcx", 0b11001010, 4);
+register_t fdx = addregister("fdx", 0b11001100, 2);
+register_t ddx = addregister("ddx", 0b11001101, 3);
+register_t qdx = addregister("qdx", 0b11001110, 4);
+register_t fex = addregister("fex", 0b11010000, 2);
+register_t dex = addregister("dex", 0b11010001, 3);
+register_t qex = addregister("qex", 0b11010010, 4);
+register_t ffx = addregister("ffx", 0b11010100, 2);
+register_t dfx = addregister("dfx", 0b11010101, 3);
+register_t qfx = addregister("qfx", 0b11010110, 4);
+register_t fgx = addregister("fgx", 0b11011000, 2);
+register_t dgx = addregister("dgx", 0b11011001, 3);
+register_t qgx = addregister("qgx", 0b11011010, 4);
+register_t fhx = addregister("fhx", 0b11011100, 2);
+register_t dhx = addregister("dhx", 0b11011101, 3);
+register_t qhx = addregister("qhx", 0b11011110, 4);
