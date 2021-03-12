@@ -125,7 +125,7 @@ __BEGIN_NAMESPACE_STD
 	using size_t = unsigned long long;
 # else
 	using size_t = unsigned long;
-# endif
+# endif // __ARCH == 64
 
 	using div_t = struct {
 		int quot;
@@ -140,7 +140,7 @@ __BEGIN_NAMESPACE_STD
 		long long quot;
 		long long rem;
 	};
-# endif
+# endif // __ARCH == 64
 
 __END_NAMESPACE_STD
 
@@ -153,21 +153,25 @@ __END_NAMESPACE_STD
 #   define NULL nullptr
 #  else
 #   define NULL (void*)0
-#  endif
-# endif
+#  endif // __cplusplus
+# endif // NULL
 
-# undef EXIT_FAILURE
+# ifdef EXIT_FAILURE
+#  undef EXIT_FAILURE
+# endif // EXIT_FAILURE
 # define EXIT_FAILURE -1
-# undef EXIT_SUCCESS
+# ifdef EXIT_SUCCESS
+#  undef EXIT_SUCCESS
+# endif // EXIT_SUCCESS
 # define EXIT_SUCCESS 0
 # if __ARCH == 64
 #  define RAND_MAX 9223372036854775807
 # else
 #  define RAND_MAX 2147483647
-# endif
+# endif // __ARCH == 64
 # ifndef MB_CUR_MAX
 #  define MB_CUR_MAX 4
-# endif
+# endif // MB_CUR_MAX
 
 __BEGIN_NAMESPACE_STD
 
@@ -192,20 +196,20 @@ __BEGIN_NAMESPACE_STD
 	extern double atof(const char* nptr);
 	extern int atoi(const char* nptr);
 	extern long int atol(const char* nptr);
-# if __ARCH == 64
+# if __ARCH == 64 && __cplusplus >= 201103L
 	extern long long int atoll(const char* nptr);
-# endif
+# endif // __ARCH == 64 && __cplusplus >= 201103L
 	extern double strtod(const char* nptr, char** endptr);
 	extern float strtof(const char* nptr, char** endptr);
 	extern long double strtold(const char* nptr, char** endptr);
 	extern long int strtol(const char* nptr, char** endptr, int base);
-# if __ARCH == 64
+# if __ARCH == 64 && __cplusplus >= 201103L
 	extern long long int strtoll(const char* nptr, char** endptr, int base);
-# endif
+# endif // __ARCH == 64 && __cplusplus >= 201103L
 	extern unsigned long int strtoul(const char* nptr, char** endptr, int base);
-# if __ARCH == 64
+# if __ARCH == 64 && __cplusplus >= 201103L
 	extern unsigned long long int strtoull(const char* nptr, char** endptr, int base);
-# endif
+# endif // __ARCH == 64 && __cplusplus >= 201103L
 
 	extern int mblen(const char* s, size_t n);
 	extern int mbtowc(wchar_t* pwc, const char* s, size_t n);
@@ -228,16 +232,16 @@ __BEGIN_NAMESPACE_STD
 	extern long int labs(long int j);
 	# if __ARCH == 64
 	extern long long int llabs(long long int j);
-	# endif
+	# endif // __ARCH == 64
 	extern div_t div(int numer, int denom);
 	extern ldiv_t div(long int numer, long int denom);
 	# if __ARCH == 64
 	extern lldiv_t div(long long int numer, long long int denom);
-	# endif
+	# endif // __ARCH == 64
 	extern ldiv_t ldiv(long int numer, long int denom);
 	# if __ARCH == 64
 	extern lldiv_t lldiv(long long int numer, long long int denom);
-	# endif
+	# endif // __ARCH == 64
 
 __END_NAMESPACE_STD
 

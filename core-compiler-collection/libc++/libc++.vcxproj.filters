@@ -24,15 +24,21 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="include\config">
+    <None Include="include\cstddef">
       <Filter>Header Files\include</Filter>
     </None>
-    <None Include="include\cstddef">
+    <None Include="include\climits">
+      <Filter>Header Files\include</Filter>
+    </None>
+    <None Include="include\version">
       <Filter>Header Files\include</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\cstdlib">
+      <Filter>Header Files\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\config">
       <Filter>Header Files\include</Filter>
     </ClInclude>
   </ItemGroup>

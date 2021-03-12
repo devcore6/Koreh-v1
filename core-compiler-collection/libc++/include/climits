@@ -14,7 +14,7 @@
  */
 
 /* 
- * synopsys:
+ * synopsis:
  * 
  * #define CHAR_BIT 
  * #define SCHAR_MIN 

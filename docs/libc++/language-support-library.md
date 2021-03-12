@@ -29,6 +29,8 @@ This file implements macros and configurations used by my implementation of the 
 #define __BEGIN_NAMESPACE_STD
 #define __END_NAMESPACE_STD
 #define __LIBCPP_VERSION
+
+#undef __CHAR_UNSIGNED__
  ```
 
 # [cstddef](../../core-compiler-collection/libc++/include/cstddef)

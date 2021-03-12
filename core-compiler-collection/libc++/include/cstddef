@@ -73,6 +73,7 @@ __BEGIN_NAMESPACE_STD
 #endif // __ARCH == 64
 	using max_align_t = long double;
 	using nullptr_t = decltype(nullptr);
+# if __cplusplus >= __cpp_lib_byte
 	enum class byte : unsigned char {};
 	/*
 	 * Clause 17.2.5 defines byte operations as such
@@ -118,6 +119,7 @@ __BEGIN_NAMESPACE_STD
 	constexpr IntType to_integer(byte b) noexcept {
 		return static_cast<IntType>(b);
 	}
+# endif // __cplusplus >= __cpp_lib_byte
 
 __END_NAMESPACE_STD
 

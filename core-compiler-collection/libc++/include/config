@@ -21,13 +21,20 @@
  * #define __END_NAMESPACE_STD
  * #define __LIBCPP_VERSION
  * 
+ * #undef __CHAR_UNSIGNED__
+ * 
  */
 
 #ifndef __LIBCPP_CONFIG
 # define __LIBCPP_CONFIG
 
-# define __BEGIN_NAMESPACE_STD namespace std {
-# define __END_NAMESPACE_STD }
+# ifdef __cplusplus
+#  define __BEGIN_NAMESPACE_STD namespace std {
+#  define __END_NAMESPACE_STD }
+# else
+#  define __BEGIN_NAMESPACE_STD
+#  defien __END_NAMESPACE_STD
+# endif
 
 # define __LIBCPP_VERSION 1
 
