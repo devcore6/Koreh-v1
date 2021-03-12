@@ -27,3 +27,13 @@
 	1\. [Hardware-generated exceptions](#hardware-generated-exceptions)
 	
 	2\. [IO-generated interrupts](#io-generated-interrupts)
+
+### C++ Compiler
+1. [ISO-C++23 Working draft used for the compiler](http://open-std.org/JTC1/SC22/WG21/docs/papers/2020/n4878.pdf)
+
+### libc++
+1. [Language support library](docs/libc++/language-support-library.md)
+
+	1\. config [synopsys](docs/libc++/language-support-library.md#config) [header](core-compiler-collection/libc++/include/config)
+
+	2\. cstddef [synopsys](docs/libc++/language-support-library.md#cstddef) [header](core-compiler-collection/libc++/include/cstddef)
