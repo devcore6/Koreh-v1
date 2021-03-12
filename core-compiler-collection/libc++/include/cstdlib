@@ -21,7 +21,7 @@
  */
 
 /* 
- * synopsys:
+ * synopsis:
  * 
  * __BEGIN_NAMESPACE_STD
  * 
@@ -30,10 +30,10 @@
  * #else
  * using size_t = unsigned long;
  * #endif
- * typedef struct div_t;
- * typedef struct ldiv_t;
+ * using div_t = struct;
+ * using ldiv_t = struct;
  * #if __ARCH == 64
- * typedef struct lldiv_t;
+ * using lldiv_t = struct;
  * #endif
  * 
  * __END_NAMESPACE_STD
@@ -63,14 +63,20 @@
  * double atof(const char* nptr);
  * int atoi(const char* nptr);
  * long int atol(const char* nptr);
+ * #if __ARCH == 64
  * long long int atoll(const char* nptr);
+ * #endif
  * double strtod(const char* nptr, char** endptr);
  * float strtof(const char* nptr, char** endptr);
  * long double strtold(const char* nptr, char** endptr);
  * long int strtol(const char* nptr, char** endptr, int base);
+ * #if __ARCH == 64
  * long long int strtoll(const char* nptr, char** endptr, int base);
+ * #endif
  * unsigned long int strtoul(const char* nptr, char** endptr, int base);
+ * #if __ARCH == 64
  * unsigned long long int strtoull(const char* nptr, char** endptr, int base);
+ * #endifv
  * 
  * int mblen(const char* s, size_t n);
  * int mbtowc(wchar_t* pwc, const char* s, size_t n);
@@ -91,14 +97,16 @@
  * double abs(double j);
  * long double abs(long double j);
  * long int labs(long int j);
+ * #if __ARCH == 64
  * long long int llabs(long long int j);
+ * endif
  * div_t div(int numer, int denom);
  * ldiv_t div(long int numer, long int denom);
- * #if ARCH == 64
+ * #if __ARCH == 64
  * lldiv_t div(long long int numer, long long int denom);
  * #endif
  * ldiv_t ldiv(long int numer, long int denom);
- * #if ARCH == 64
+ * #if __ARCH == 64
  * lldiv_t lldiv(long long int numer, long long int denom);
  * #endif
  * 
@@ -119,19 +127,19 @@ __BEGIN_NAMESPACE_STD
 	using size_t = unsigned long;
 # endif
 
-	typedef struct {
+	using div_t = struct {
 		int quot;
 		int rem;
-	} div_t;
-	typedef struct {
+	};
+	using ldiv_t = struct {
 		long quot;
 		long rem;
-	} ldiv_t;
+	};
 # if __ARCH == 64
-	typedef struct {
+	using lldiv_t = struct {
 		long long quot;
 		long long rem;
-	} lldiv_t;
+	};
 # endif
 
 __END_NAMESPACE_STD
@@ -152,7 +160,7 @@ __END_NAMESPACE_STD
 # define EXIT_FAILURE -1
 # undef EXIT_SUCCESS
 # define EXIT_SUCCESS 0
-# if ARCH == 64
+# if __ARCH == 64
 #  define RAND_MAX 9223372036854775807
 # else
 #  define RAND_MAX 2147483647
@@ -184,14 +192,20 @@ __BEGIN_NAMESPACE_STD
 	extern double atof(const char* nptr);
 	extern int atoi(const char* nptr);
 	extern long int atol(const char* nptr);
+# if __ARCH == 64
 	extern long long int atoll(const char* nptr);
+# endif
 	extern double strtod(const char* nptr, char** endptr);
 	extern float strtof(const char* nptr, char** endptr);
 	extern long double strtold(const char* nptr, char** endptr);
 	extern long int strtol(const char* nptr, char** endptr, int base);
+# if __ARCH == 64
 	extern long long int strtoll(const char* nptr, char** endptr, int base);
+# endif
 	extern unsigned long int strtoul(const char* nptr, char** endptr, int base);
+# if __ARCH == 64
 	extern unsigned long long int strtoull(const char* nptr, char** endptr, int base);
+# endif
 
 	extern int mblen(const char* s, size_t n);
 	extern int mbtowc(wchar_t* pwc, const char* s, size_t n);
@@ -212,14 +226,16 @@ __BEGIN_NAMESPACE_STD
 	extern double abs(double j);
 	extern long double abs(long double j);
 	extern long int labs(long int j);
+	# if __ARCH == 64
 	extern long long int llabs(long long int j);
+	# endif
 	extern div_t div(int numer, int denom);
 	extern ldiv_t div(long int numer, long int denom);
-	# if ARCH == 64
+	# if __ARCH == 64
 	extern lldiv_t div(long long int numer, long long int denom);
 	# endif
 	extern ldiv_t ldiv(long int numer, long int denom);
-	# if ARCH == 64
+	# if __ARCH == 64
 	extern lldiv_t lldiv(long long int numer, long long int denom);
 	# endif
 

@@ -17,23 +17,80 @@
  */
 
 #include <cstdlib>
+#include <cctype>
+#include <cmath>
 
 __BEGIN_NAMESPACE_STD
 
 	double atof(const char* nptr) {
+		double value = 0;
+		int sign = 1;
+		if(*nptr == '+' || *nptr == '-') {
+			if(*nptr == '-') sign = -1;
+			nptr++;
+		}
+		while(isdigit(*nptr)) {
+			value *= 10;
+			value += (int)(*nptr - '0');
+			nptr++;
+		}
+		if(*nptr == '.') {
+			nptr++;
+			int count = 0;
+			while(isdigit(*nptr)) {
+				value += (double)(*nptr - '0') / pow(10, count + 1);
+				nptr++;
+			}
+			if(*nptr == 'e' || *nptr == 'E') {
 
+			}
+		}
+		return (value * sign);
 	}
 
 	int atoi(const char* nptr) {
-
+		int value = 0;
+		int sign = 1;
+		if(*nptr == '+' || *nptr == '-') {
+			if(*nptr == '-') sign = -1;
+			nptr++;
+		}
+		while(isdigit(*nptr)) {
+			value *= 10;
+			value += (int)(*nptr - '0');
+			nptr++;
+		}
+		return (value * sign);
 	}
 
 	long int atol(const char* nptr) {
-
+		long value = 0;
+		int sign = 1;
+		if(*nptr == '+' || *nptr == '-') {
+			if(*nptr == '-') sign = -1;
+			nptr++;
+		}
+		while(isdigit(*nptr)) {
+			value *= 10;
+			value += (long)(*nptr - '0');
+			nptr++;
+		}
+		return (value * sign);
 	}
 
 	long long int atoll(const char* nptr) {
-
+		long long value = 0;
+		int sign = 1;
+		if(*nptr == '+' || *nptr == '-')     {
+			if(*nptr == '-') sign = -1;
+			nptr++;
+		}
+		while(isdigit(*nptr)) {
+			value *= 10;
+			value += (long long)*nptr - '0';
+			nptr++;
+		}
+		return (value * sign);
 	}
 
 	double strtod(const char* nptr, char** endptr) {

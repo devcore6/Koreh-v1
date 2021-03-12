@@ -15,7 +15,7 @@
  */
 
 /* 
- * synopsys:
+ * synopsis:
  * 
  * #define __BEGIN_NAMESPACE_STD
  * #define __END_NAMESPACE_STD
@@ -30,5 +30,7 @@
 # define __END_NAMESPACE_STD }
 
 # define __LIBCPP_VERSION 1
+
+# undef __CHAR_UNSIGNED__
 
 #endif

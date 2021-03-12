@@ -15,8 +15,9 @@
  */
 
 /* 
- * synopsys:
+ * synopsis:
  * 
+ * #define __cpp_lib_byte
  * __BEGIN_NAMESPACE_STD
  * #if __ARCH == 64
  * using ptrdiff_t = long long;
@@ -56,6 +57,10 @@
 # define __LIBCPP_CSTDDEF
 
 # include <config>
+
+# ifndef __cpp_lib_byte
+#  define __cpp_lib_byte 201603L
+# endif // __cpp_lib_byte
 
 __BEGIN_NAMESPACE_STD
 
