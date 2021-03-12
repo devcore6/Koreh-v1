@@ -52,7 +52,7 @@ extern "C++" {
 		constexpr byte operator~(byte b) noexcept;
 		template<class IntType>
 		constexpr IntType to_integer(byte b) noexcept;
-		__END_NAMESPACE_STD
+	__END_NAMESPACE_STD
 
 #define NULL
 #define offsetof(P, D)
