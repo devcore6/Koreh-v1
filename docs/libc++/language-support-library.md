@@ -18,7 +18,8 @@
 16. [cstdarg](#cstdarg)
 17. [csetjmp](#csetjmp)
 18. [csignal](#csignal)
-19. [config](#config)
+
+# [config](../../core-compiler-collection/libc++/include/config)
 
 This file implements macros and configurations used by my implementation of the standard c++ library (libc++)
 
