@@ -101,14 +101,14 @@ extern "C++" {
 	 * Clause 17.2.3 paragraph 2 defines NULL as a macro to a
 	 * null pointer constant
 	 */
-	#ifndef NULL
-	# define NULL nullptr
-	#endif
+# ifndef NULL
+#  define NULL nullptr
+# endif
 
 	/*
 	 * We define offsetoff through a builtin language extension in the compiler
 	 */
-	#define offsetof(P, D) \
+# define offsetof(P, D) \
 		__builtin_offsetof(P, D)
 
 } // extern "C++"

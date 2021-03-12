@@ -25,37 +25,37 @@ This file implements common language definitions as defined in clause 17.2 of th
 extern "C++" {
 
 	__BEGIN_NAMESPACE_STD
-	#if __ARCH == 64
+#if __ARCH == 64
 		using ptrdiff_t = long long;
 		using size_t = unsigned long long;
-	#else
+#else
 		using ptrdiff_t = long;
 		using size_t = unsigned long;
-	#endif
-	using max_align_t = long double;
-	using nullptr_t = decltype(nullptr);
-	enum class byte : unsigned char {};
-	template<class IntType>
-	constexpr byte& operator<<=(byte& b, IntType shift) noexcept;
-	template<class IntType>
-	constexpr byte operator<<(byte b, IntType shift) noexcept;
-	template<class IntType>
-	constexpr byte& operator>>=(byte& b, IntType shift) noexcept;
-	template<class IntType>
-	constexpr byte operator>>(byte b, IntType shift) noexcept;
-	constexpr byte& operator|=(byte& l, byte r) noexcept;
-	constexpr byte operator|(byte l, byte r) noexcept;
-	constexpr byte& operator&=(byte& l, byte r) noexcept;
-	constexpr byte operator&(byte l, byte r) noexcept;
-	constexpr byte& operator^=(byte& l, byte r) noexcept;
-	constexpr byte operator^(byte l, byte r) noexcept;
-	constexpr byte operator~(byte b) noexcept;
-	template<class IntType>
-	constexpr IntType to_integer(byte b) noexcept;
-	__END_NAMESPACE_STD
+#endif
+		using max_align_t = long double;
+		using nullptr_t = decltype(nullptr);
+		enum class byte : unsigned char {};
+		template<class IntType>
+		constexpr byte& operator<<=(byte& b, IntType shift) noexcept;
+		template<class IntType>
+		constexpr byte operator<<(byte b, IntType shift) noexcept;
+		template<class IntType>
+		constexpr byte& operator>>=(byte& b, IntType shift) noexcept;
+		template<class IntType>
+		constexpr byte operator>>(byte b, IntType shift) noexcept;
+		constexpr byte& operator|=(byte& l, byte r) noexcept;
+		constexpr byte operator|(byte l, byte r) noexcept;
+		constexpr byte& operator&=(byte& l, byte r) noexcept;
+		constexpr byte operator&(byte l, byte r) noexcept;
+		constexpr byte& operator^=(byte& l, byte r) noexcept;
+		constexpr byte operator^(byte l, byte r) noexcept;
+		constexpr byte operator~(byte b) noexcept;
+		template<class IntType>
+		constexpr IntType to_integer(byte b) noexcept;
+		__END_NAMESPACE_STD
 
-	#define NULL
-	#define offsetof(P, D)
+#define NULL
+#define offsetof(P, D)
 
 }
 ```
