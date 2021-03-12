@@ -24,12 +24,13 @@ __BEGIN_NAMESPACE_STD
 
 	// todo: locale
 
-	double atof(const char* nptr) { return strtod(nptr, NULL); }
-	int atoi(const char* nptr) { return strtol(nptr, NULL, 10); }
 	long int atol(const char* nptr) { return strtol(nptr, NULL, 10); }
+	double atof(const char* nptr) { return strtod(nptr, nullptr); }
+	int atoi(const char* nptr) { return strtol(nptr, nullptr, 10); }
+	long int atol(const char* nptr) { return strtol(nptr, nullptr, 10); }
 
 # if __ARCH == 64 && __cplusplus >= 201103L
-	long long int atoll(const char* nptr) { return strtoll(nptr, NULL, 10); }
+	long long int atoll(const char* nptr) { return strtoll(nptr, nullptr, 10); }
 # endif // __ARCH == 64 && __cplusplus >= 201103L
 
 	double strtod(const char* nptr, char** endptr) {
@@ -107,7 +108,7 @@ __BEGIN_NAMESPACE_STD
 			}
 		}
 		nptr++;												// Step to next character
-		if(endptr != NULL) *endptr = nptr;					// Set endptr to the current position
+		if(endptr != nullptr) *endptr = nptr;				// Set endptr to the current position
 		return value * sign;
 	}
 
@@ -186,7 +187,7 @@ __BEGIN_NAMESPACE_STD
 			}
 		}
 		nptr++;												// Step to next character
-		if(endptr != NULL) *endptr = nptr;					// Set endptr to the current position
+		if(endptr != nullptr) *endptr = nptr;				// Set endptr to the current position
 		return value * sign;
 	}
 
@@ -265,7 +266,7 @@ __BEGIN_NAMESPACE_STD
 			}
 		}
 		nptr++;												// Step to next character
-		if(endptr != NULL) *endptr = nptr;					// Set endptr to the current position
+		if(endptr != nullptr) *endptr = nptr;				// Set endptr to the current position
 		return value * sign;
 	}
 
@@ -293,7 +294,7 @@ __BEGIN_NAMESPACE_STD
 			nptr++;											// Step to next character
 		}
 		nptr++;												// Step to next character
-		if(endptr != NULL) *endptr = nptr;					// Set endptr to the current position
+		if(endptr != nullptr) *endptr = nptr;				// Set endptr to the current position
 		return value * sign;
 	}
 
@@ -322,7 +323,7 @@ __BEGIN_NAMESPACE_STD
 			nptr++;											// Step to next character
 		}
 		nptr++;												// Step to next character
-		if(endptr != NULL) *endptr = nptr;					// Set endptr to the current position
+		if(endptr != nullptr) *endptr = nptr;				// Set endptr to the current position
 		return value * sign;
 	}
 # endif // __ARCH == 64 && __cplusplus >= 201103L
@@ -346,7 +347,7 @@ __BEGIN_NAMESPACE_STD
 			nptr++;											// Step to next character
 		}
 		nptr++;												// Step to next character
-		if(endptr != NULL) *endptr = nptr;					// Set endptr to the current position
+		if(endptr != nullptr) *endptr = nptr;				// Set endptr to the current position
 		return value;
 	}
 
@@ -370,7 +371,7 @@ __BEGIN_NAMESPACE_STD
 			nptr++;											// Step to next character
 		}
 		nptr++;												// Step to next character
-		if(endptr != NULL) *endptr = nptr;					// Set endptr to the current position
+		if(endptr != nullptr) *endptr = nptr;				// Set endptr to the current position
 		return value;
 	}
 # endif // __ARCH == 64 && __cplusplus >= 201103L
