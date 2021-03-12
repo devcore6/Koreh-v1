@@ -1,4 +1,4 @@
-/*
+/* 
  * The Koreh-v1 Project
  * Koreh-v1 C++ Compiler (ccxx)
  * 
@@ -8,13 +8,13 @@
  * 
  * This file contains macros and configurations used
  * By the library
- *
+ * 
  * The ISO documents referenced by this compiler can be found at
  * http://open-std.org/JTC1/SC22/WG21/docs/papers/2020/n4878.pdf
- *
+ * 
  */
 
-/*
+/* 
  * synopsys:
  * 
  * #define __BEGIN_NAMESPACE_STD

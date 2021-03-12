@@ -37,3 +37,5 @@
 	1\. config [synopsys](docs/libc++/language-support-library.md#config) [header](core-compiler-collection/libc++/include/config)
 
 	2\. cstddef [synopsys](docs/libc++/language-support-library.md#cstddef) [header](core-compiler-collection/libc++/include/cstddef)
+
+	3\. cstdlib [synopsys](docs/libc++/language-support-library.md#cstdlib) [header](core-compiler-collection/libc++/include/cstdlib)
