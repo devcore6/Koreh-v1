@@ -58,7 +58,7 @@ __BEGIN_NAMESPACE_STD
 		while(isdigit(*nptr) || (factor == 16 && (tolower(*nptr) >= 'a' && tolower(*nptr) <= 'f'))) {
 			if(tolower(*nptr) >= 'a' && tolower(*nptr) <= 'f') {
 				value *= 16;								// Multiply the value by the factor (16) as we are now on the next digit
-				value += (int)(tolower(*nptr) - 'a' + 10);	// Add the value of the character (lowercase character - a + 10)
+				value += (double)(tolower(*nptr) - 'a' + 10); // Add the value of the character (lowercase character - a + 10)
 				nptr++;										// Step to next character
 				continue;									// Go back to the top of the loop
 			}
@@ -66,7 +66,7 @@ __BEGIN_NAMESPACE_STD
 		while(isdigit(*nptr)) {
 #endif // __cplusplus < 201103L
 			value *= factor;								// Multiply the value by the factor as we are now on the next digit
-			value += (int)(*nptr - '0');					// Add the value of the character
+			value += (double)(*nptr - '0');					// Add the value of the character
 			nptr++;											// Step to next character
 		}
 		if(*nptr == '.') {									// Found a dot
@@ -92,7 +92,7 @@ __BEGIN_NAMESPACE_STD
 			if((tolower(*nptr) == 'e' && factor == 10) || \
 			   (tolower(*nptr) == 'p' && factor == 16)) {	// Scientific notation
 				nptr++;										// Step to next character
-				int exponent = 0;							// Keep track of the exponent
+				double exponent = 0;						// Keep track of the exponent
 				int expsign = 1;							// Keep track of the exponent sign
 				if(*nptr == '+' || *nptr == '-') {
 					if(*nptr == '-') expsign = -1;			// Set exponent sign to -
@@ -100,7 +100,7 @@ __BEGIN_NAMESPACE_STD
 				}
 				while(isdigit(*nptr)) {
 					exponent *= 10;							// Next digit, so multiply exponent by 10
-					exponent += (int)(*nptr - '0');			// Add the value of the character
+					exponent += (double)(*nptr - '0');		// Add the value of the character
 					nptr++;
 				}
 				if(factor == 10) value *= pow(10, exponent * expsign);
@@ -115,7 +115,7 @@ __BEGIN_NAMESPACE_STD
 	float strtof(const char* nptr, char** endptr) {
 		if(!nptr) return 0;
 		while(isspace(*nptr)) nptr++;						// Skip all whitespaces
-		double value = 0;
+		float value = 0;
 		int sign = 1;
 		int factor = 10;
 		if(*nptr == '+' || *nptr == '-') {					// Check for sign
@@ -137,7 +137,7 @@ __BEGIN_NAMESPACE_STD
 		while(isdigit(*nptr) || (factor == 16 && (tolower(*nptr) >= 'a' && tolower(*nptr) <= 'f'))) {
 			if(tolower(*nptr) >= 'a' && tolower(*nptr) <= 'f') {
 				value *= 16;								// Multiply the value by the factor (16) as we are now on the next digit
-				value += (int)(tolower(*nptr) - 'a' + 10);	// Add the value of the character (lowercase character - a + 10)
+				value += (float)(tolower(*nptr) - 'a' + 10);// Add the value of the character (lowercase character - a + 10)
 				nptr++;										// Step to next character
 				continue;									// Go back to the top of the loop
 			}
@@ -145,7 +145,7 @@ __BEGIN_NAMESPACE_STD
 		while(isdigit(*nptr)) {
 #endif // __cplusplus < 201103L
 			value *= factor;								// Multiply the value by the factor as we are now on the next digit
-			value += (int)(*nptr - '0');					// Add the value of the character
+			value += (float)(*nptr - '0');					// Add the value of the character
 			nptr++;											// Step to next character
 		}
 		if(*nptr == '.') {									// Found a dot
@@ -154,7 +154,7 @@ __BEGIN_NAMESPACE_STD
 #if __cplusplus >= 201103L									// C++11 adds support for hex numbers in 0x formatting
 			while(isdigit(*nptr) || (factor == 16 && (tolower(*nptr) >= 'a' && tolower(*nptr) <= 'f'))) {
 			if(tolower(*nptr) >= 'a' && tolower(*nptr) <= 'f') {
-				value += (double)(tolower(*nptr) - 'a' + 10) / pow(16, count + 1); // Add the value of the character divided by
+				value += (float)(tolower(*nptr) - 'a' + 10) / pow(16, count + 1); // Add the value of the character divided by
 															// factor^(count+1) as we are adding a number in the decimal place
 				count++;									// Increase decimal place counter
 				nptr++;										// Step to next character
@@ -163,7 +163,7 @@ __BEGIN_NAMESPACE_STD
 #else
 			while(isdigit(*nptr)) {
 #endif // __cplusplus < 201103L
-				value += (double)(*nptr - '0') / pow(factor, count + 1); // Add the value of the character divided by factor^(count+1)
+				value += (float)(*nptr - '0') / pow(factor, count + 1); // Add the value of the character divided by factor^(count+1)
 															// as we are adding a number in the decimal place
 				count++;									// Increase decimal place counter
 				nptr++;										// Step to next character
@@ -171,7 +171,7 @@ __BEGIN_NAMESPACE_STD
 			if((tolower(*nptr) == 'e' && factor == 10) || \
 			   (tolower(*nptr) == 'p' && factor == 16)) {	// Scientific notation
 				nptr++;										// Step to next character
-				int exponent = 0;							// Keep track of the exponent
+				float exponent = 0;							// Keep track of the exponent
 				int expsign = 1;							// Keep track of the exponent sign
 				if(*nptr == '+' || *nptr == '-') {
 					if(*nptr == '-') expsign = -1;			// Set exponent sign to -
@@ -179,11 +179,16 @@ __BEGIN_NAMESPACE_STD
 				}
 				while(isdigit(*nptr)) {
 					exponent *= 10;							// Next digit, so multiply exponent by 10
-					exponent += (int)(*nptr - '0');			// Add the value of the character
+					exponent += (float)(*nptr - '0');		// Add the value of the character
 					nptr++;
 				}
+#if __cplusplus >= 201103L									// powf introduced in C++11
+				if(factor == 10) value *= powf(10, exponent * expsign);
+				else value *= powf(2, exponent * expsign);
+#else
 				if(factor == 10) value *= pow(10, exponent * expsign);
 				else value *= pow(2, exponent * expsign);
+#endif // __cplusplus >= 201103L
 			}
 		}
 		nptr++;												// Step to next character
@@ -194,7 +199,7 @@ __BEGIN_NAMESPACE_STD
 	long double strtold(const char* nptr, char** endptr) {
 		if(!nptr) return 0;
 		while(isspace(*nptr)) nptr++;						// Skip all whitespaces
-		double value = 0;
+		long double value = 0;
 		int sign = 1;
 		int factor = 10;
 		if(*nptr == '+' || *nptr == '-') {					// Check for sign
@@ -216,7 +221,7 @@ __BEGIN_NAMESPACE_STD
 		while(isdigit(*nptr) || (factor == 16 && (tolower(*nptr) >= 'a' && tolower(*nptr) <= 'f'))) {
 			if(tolower(*nptr) >= 'a' && tolower(*nptr) <= 'f') {
 				value *= 16;								// Multiply the value by the factor (16) as we are now on the next digit
-				value += (int)(tolower(*nptr) - 'a' + 10);	// Add the value of the character (lowercase character - a + 10)
+				value += (long double)(tolower(*nptr) - 'a' + 10); // Add the value of the character (lowercase character - a + 10)
 				nptr++;										// Step to next character
 				continue;									// Go back to the top of the loop
 			}
@@ -224,7 +229,7 @@ __BEGIN_NAMESPACE_STD
 		while(isdigit(*nptr)) {
 #endif // __cplusplus < 201103L
 			value *= factor;								// Multiply the value by the factor as we are now on the next digit
-			value += (int)(*nptr - '0');					// Add the value of the character
+			value += (long double)(*nptr - '0');			// Add the value of the character
 			nptr++;											// Step to next character
 		}
 		if(*nptr == '.') {									// Found a dot
@@ -233,7 +238,7 @@ __BEGIN_NAMESPACE_STD
 #if __cplusplus >= 201103L									// C++11 adds support for hex numbers in 0x formatting
 			while(isdigit(*nptr) || (factor == 16 && (tolower(*nptr) >= 'a' && tolower(*nptr) <= 'f'))) {
 			if(tolower(*nptr) >= 'a' && tolower(*nptr) <= 'f') {
-				value += (double)(tolower(*nptr) - 'a' + 10) / pow(16, count + 1); // Add the value of the character divided by
+				value += (long double)(tolower(*nptr) - 'a' + 10) / pow(16, count + 1); // Add the value of the character divided by
 															// factor^(count+1) as we are adding a number in the decimal place
 				count++;									// Increase decimal place counter
 				nptr++;										// Step to next character
@@ -242,7 +247,7 @@ __BEGIN_NAMESPACE_STD
 #else
 			while(isdigit(*nptr)) {
 #endif // __cplusplus < 201103L
-				value += (double)(*nptr - '0') / pow(factor, count + 1); // Add the value of the character divided by factor^(count+1)
+				value += (long double)(*nptr - '0') / pow(factor, count + 1); // Add the value of the character divided by factor^(count+1)
 															// as we are adding a number in the decimal place
 				count++;									// Increase decimal place counter
 				nptr++;										// Step to next character
@@ -250,7 +255,7 @@ __BEGIN_NAMESPACE_STD
 			if((tolower(*nptr) == 'e' && factor == 10) || \
 			   (tolower(*nptr) == 'p' && factor == 16)) {	// Scientific notation
 				nptr++;										// Step to next character
-				int exponent = 0;							// Keep track of the exponent
+				long double exponent = 0;					// Keep track of the exponent
 				int expsign = 1;							// Keep track of the exponent sign
 				if(*nptr == '+' || *nptr == '-') {
 					if(*nptr == '-') expsign = -1;			// Set exponent sign to -
@@ -258,11 +263,16 @@ __BEGIN_NAMESPACE_STD
 				}
 				while(isdigit(*nptr)) {
 					exponent *= 10;							// Next digit, so multiply exponent by 10
-					exponent += (int)(*nptr - '0');			// Add the value of the character
+					exponent += (long double)(*nptr - '0');	// Add the value of the character
 					nptr++;
 				}
+#if __cplusplus >= 201103L									// powl introduced in C++11
+				if(factor == 10) value *= powl(10, exponent * expsign);
+				else value *= powl(2, exponent * expsign);
+#else
 				if(factor == 10) value *= pow(10, exponent * expsign);
 				else value *= pow(2, exponent * expsign);
+#endif // __cplusplus >= 201103L
 			}
 		}
 		nptr++;												// Step to next character
@@ -289,8 +299,8 @@ __BEGIN_NAMESPACE_STD
 		}
 		while((isdigit(*nptr) && (*nptr - '0' < base)) || (tolower(*nptr) - 'a' + 10 < base)) {
 			value *= base;									// Multiply value by base (next character)
-			if(isdigit(*nptr)) value += (int)(*nptr - '0');	// Add value of character
-			else value += (int)(tolower(*nptr) - 'a' + 10);	// Add value of character
+			if(isdigit(*nptr)) value += (long)(*nptr - '0');// Add value of character
+			else value += (long)(tolower(*nptr) - 'a' + 10);// Add value of character
 			nptr++;											// Step to next character
 		}
 		nptr++;												// Step to next character
@@ -318,7 +328,7 @@ __BEGIN_NAMESPACE_STD
 		}
 		while((isdigit(*nptr) && (*nptr - '0' < base)) || (tolower(*nptr) - 'a' + 10 < base)) {
 			value *= base;									// Multiply value by base (next character)
-			if(isdigit(*nptr)) value += (int)(*nptr - '0');	// Add value of character
+			if(isdigit(*nptr)) value += (long long)(*nptr - '0'); // Add value of character
 			else value += (long long)(tolower(*nptr) - 'a' + 10); // Add value of character
 			nptr++;											// Step to next character
 		}
@@ -342,7 +352,7 @@ __BEGIN_NAMESPACE_STD
 		}
 		while((isdigit(*nptr) && (*nptr - '0' < base)) || (tolower(*nptr) - 'a' + 10 < base)) {
 			value *= base;									// Multiply value by base (next character)
-			if(isdigit(*nptr)) value += (int)(*nptr - '0');	// Add value of character
+			if(isdigit(*nptr)) value += (unsigned long)(*nptr - '0'); // Add value of character
 			else value += (unsigned long)(tolower(*nptr) - 'a' + 10); // Add value of character
 			nptr++;											// Step to next character
 		}
@@ -366,7 +376,7 @@ __BEGIN_NAMESPACE_STD
 		}
 		while((isdigit(*nptr) && (*nptr - '0' < base)) || (tolower(*nptr) - 'a' + 10 < base)) {
 			value *= base;									// Multiply value by base (next character)
-			if(isdigit(*nptr)) value += (int)(*nptr - '0');	// Add value of character
+			if(isdigit(*nptr)) value += (unsigned long long)(*nptr - '0'); // Add value of character
 			else value += (unsigned long long)(tolower(*nptr) - 'a' + 10); // Add value of character
 			nptr++;											// Step to next character
 		}
