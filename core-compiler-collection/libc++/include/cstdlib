@@ -63,20 +63,20 @@
  * double atof(const char* nptr);
  * int atoi(const char* nptr);
  * long int atol(const char* nptr);
- * #if __ARCH == 64
+ * #if __ARCH == 64 && __cplusplus >= 201103L
  * long long int atoll(const char* nptr);
  * #endif
  * double strtod(const char* nptr, char** endptr);
  * float strtof(const char* nptr, char** endptr);
  * long double strtold(const char* nptr, char** endptr);
  * long int strtol(const char* nptr, char** endptr, int base);
- * #if __ARCH == 64
+ * #if __ARCH == 64 && __cplusplus >= 201103L
  * long long int strtoll(const char* nptr, char** endptr, int base);
  * #endif
  * unsigned long int strtoul(const char* nptr, char** endptr, int base);
- * #if __ARCH == 64
+ * #if __ARCH == 64 && __cplusplus >= 201103L
  * unsigned long long int strtoull(const char* nptr, char** endptr, int base);
- * #endifv
+ * #endif
  * 
  * int mblen(const char* s, size_t n);
  * int mbtowc(wchar_t* pwc, const char* s, size_t n);

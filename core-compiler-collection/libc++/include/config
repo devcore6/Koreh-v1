@@ -38,6 +38,8 @@
 
 # define __LIBCPP_VERSION 1
 
-# undef __CHAR_UNSIGNED__
+# ifdef __CHAR_UNSIGNED__
+#  undef __CHAR_UNSIGNED__
+# endif
 
 #endif
