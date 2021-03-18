@@ -30,7 +30,11 @@ This file implements macros and configurations used by my implementation of the 
 #define __END_NAMESPACE_STD
 #define __LIBCPP_VERSION
 
+#define __CHAR_BIT__
 #undef __CHAR_UNSIGNED__
+#define __CHAR_SIGN__
+
+#define __INTEGRAL_TRAPS__
 
 #if __cplusplus >= 201103L
 #define __HAS_CONSTEXPR__ constexpr
@@ -41,6 +45,40 @@ This file implements macros and configurations used by my implementation of the 
 #define __HAS_NOEXCEPT__
 #define __HAS_NORETURN__
 #endif
+
+#define __FLT_MIN__ 1.17549435e-38f
+#define __FLT_MAX__ 3.40282347e+38f
+#define __FLT_DIGITS__ 24
+#define __FLT_DIGITS10__ 6
+#define __FLT_RADIX__ 2
+#define __FLT_EPSILON__ 1.19209290e-7f
+#define __FLT_MIN_EXP__ (-125)
+#define __FLT_MIN_EXP_10__ (-37)
+#define __FLT_MAX_EXP__ 128
+#define __FLT_MAX_EXP_10__ 38
+#define __FLT_DENORM_MIN 1.40129846e-45f
+
+#define __DBL_MIN__ 2.2250738585072014e-308
+#define __DBL_MAX__ 1.7976931348623157e+308
+#define __DBL_DIGITS__ 53
+#define __DBL_DIGITS10__ 15
+#define __DBL_EPSILON__ 2.2204460492503131e-16
+#define __DBL_MIN_EXP__ (-1021)
+#define __DBL_MIN_EXP_10__ (-307)
+#define __DBL_MAX_EXP__ 1024
+#define __DBL_MAX_EXP_10__ 308
+#define __DBL_DENORM_MIN 1.40129846e-45f
+
+#define __LDBL_MIN__ 3.36210314311209350626e-4932l
+#define __LDBL_MAX__ 1.18973149535723176502e+4932l
+#define __LDBL_DIGITS__ 64
+#define __LDBL_DIGITS10__ 18
+#define __LDBL_EPSILON__ 1.08420217248550443401e-19l
+#define __LDBL_MIN_EXP__ (-16381)
+#define __LDBL_MIN_EXP_10__ (-4931)
+#define __LDBL_MAX_EXP__ 16384
+#define __LDBL_MAX_EXP_10__ 4932
+#define __LDBL_DENORM_MIN 3.64519953188247460253e-4951l
  ```
 
 # [cstddef](../../core-compiler-collection/libc++/include/cstddef)
