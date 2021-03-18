@@ -31,6 +31,16 @@ This file implements macros and configurations used by my implementation of the 
 #define __LIBCPP_VERSION
 
 #undef __CHAR_UNSIGNED__
+
+#if __cplusplus >= 201103L
+#define __HAS_CONSTEXPR__ constexpr
+#define __HAS_NOEXCEPT__ noexcept
+#define __HAS_NORETURN__ [[noreturn]]
+#else
+#define __HAS_CONSTEXPR__
+#define __HAS_NOEXCEPT__
+#define __HAS_NORETURN__
+#endif
  ```
 
 # [cstddef](../../core-compiler-collection/libc++/include/cstddef)
@@ -84,14 +94,14 @@ This file implements common language definitions as defined in clause 17.2.2 of 
 ```c++
 __BEGIN_NAMESPACE_STD
 #if __ARCH == 64
-using size_t = unsigned long long;
+	using size_t = unsigned long long;
 #else
-using size_t = unsigned long;
+	using size_t = unsigned long;
 #endif
-using div_t = struct;
-using ldiv_t = struct;
+	using div_t = struct;
+	using ldiv_t = struct;
 #if __ARCH == 64
-using lldiv_t = struct;
+	using lldiv_t = struct;
 #endif
 __END_NAMESPACE_STD
 
@@ -102,68 +112,68 @@ __END_NAMESPACE_STD
 #define MB_CUR_MAX
 
 __BEGIN_NAMESPACE_STD
-[[noreturn]] void abort() noexcept;
-int atexit(void (*func)()) noexcept;
-int at_quick_exit(void (*func)()) noexcept;
-[[noreturn]] void exit(int status);
-[[noreturn]] void _Exit(int status) noexcept;
-[[noreturn]] void quick_exit(int status) noexcept;
-char* getenv(const char* name);
-int system(const char* string);
+	[[noreturn]] void abort() noexcept;
+	int atexit(void (*func)()) noexcept;
+	int at_quick_exit(void (*func)()) noexcept;
+	[[noreturn]] void exit(int status);
+	[[noreturn]] void _Exit(int status) noexcept;
+	[[noreturn]] void quick_exit(int status) noexcept;
+	char* getenv(const char* name);
+	int system(const char* string);
 
-void* aligned_alloc(size_t alignment, size_t size);
-void* calloc(size_t nmemb, size_t size);
-void free(void* ptr);
-void* malloc(size_t size);
-void* realloc(void* ptr, size_t size);
-double atof(const char* nptr);
-int atoi(const char* nptr);
-long int atol(const char* nptr);
+	void* aligned_alloc(size_t alignment, size_t size);
+	void* calloc(size_t nmemb, size_t size);
+	void free(void* ptr);
+	void* malloc(size_t size);
+	void* realloc(void* ptr, size_t size);
+	double atof(const char* nptr);
+	int atoi(const char* nptr);
+	long int atol(const char* nptr);
 #if __ARCH == 64 && __cplusplus >= 201103L
-long long int atoll(const char* nptr);
+	long long int atoll(const char* nptr);
 #endif
-double strtod(const char* nptr, char** endptr);
-float strtof(const char* nptr, char** endptr);
-long double strtold(const char* nptr, char** endptr);
-long int strtol(const char* nptr, char** endptr, int base);
+	double strtod(const char* nptr, char** endptr);
+	float strtof(const char* nptr, char** endptr);
+	long double strtold(const char* nptr, char** endptr);
+	long int strtol(const char* nptr, char** endptr, int base);
 #if __ARCH == 64 && __cplusplus >= 201103L
-long long int strtoll(const char* nptr, char** endptr, int base);
+	long long int strtoll(const char* nptr, char** endptr, int base);
 #endif
-unsigned long int strtoul(const char* nptr, char** endptr, int base);
+	unsigned long int strtoul(const char* nptr, char** endptr, int base);
 #if __ARCH == 64 && __cplusplus >= 201103L
-unsigned long long int strtoull(const char* nptr, char** endptr, int base);
+	unsigned long long int strtoull(const char* nptr, char** endptr, int base);
 #endif
 
-int mblen(const char* s, size_t n);
-int mbtowc(wchar_t* pwc, const char* s, size_t n);
-int wctomb(char* s, wchar_t wchar);
-size_t mbstowcs(wchar_t* pwcs, const char* s, size_t n);
-size_t wcstombs(char* s, const wchar_t* pwcs, size_t n);
+	int mblen(const char* s, size_t n);
+	int mbtowc(wchar_t* pwc, const char* s, size_t n);
+	int wctomb(char* s, wchar_t wchar);
+	size_t mbstowcs(wchar_t* pwcs, const char* s, size_t n);
+	size_t wcstombs(char* s, const wchar_t* pwcs, size_t n);
 
-void* bsearch(const void* key, const void* base, size_t nmemb, size_t size, int (*compar)(const void*, const void*));
-void qsort(void* base, size_t nmemb, size_t size, int (*compar)(const void*, const void*));
+	void* bsearch(const void* key, const void* base, size_t nmemb, size_t size, int (*compar)(const void*, const void*));
+	void qsort(void* base, size_t nmemb, size_t size, int (*compar)(const void*, const void*));
 
-int rand();
-void srand(unsigned int seed);
+	int rand();
+	void srand(unsigned int seed);
 
-int abs(int j);
-long int abs(long int j);
-long long int abs(long long int j);
-float abs(float j);
-double abs(double j);
-long double abs(long double j);
-long int labs(long int j);
+	int abs(int j);
+	long int abs(long int j);
+	long long int abs(long long int j);
+	float abs(float j);
+	double abs(double j);
+	long double abs(long double j);
+	long int labs(long int j);
 #if __ARCH == 64
-long long int llabs(long long int j);
-endif
-div_t div(int numer, int denom);
-ldiv_t div(long int numer, long int denom);
-#if __ARCH == 64
-lldiv_t div(long long int numer, long long int denom);
+	long long int llabs(long long int j);
 #endif
-ldiv_t ldiv(long int numer, long int denom);
+	div_t div(int numer, int denom);
+	ldiv_t div(long int numer, long int denom);
 #if __ARCH == 64
-lldiv_t lldiv(long long int numer, long long int denom);
+	lldiv_t div(long long int numer, long long int denom);
+#endif
+	ldiv_t ldiv(long int numer, long int denom);
+#if __ARCH == 64
+	lldiv_t lldiv(long long int numer, long long int denom);
 #endif
 __END_NAMESPACE_STD
  ```
@@ -310,6 +320,47 @@ This file contains macros supplying implementation-dependent information about t
 ```
 
 # [limits](../../core-compiler-collection/libc++/include/limits)
+
+```c++
+#define __cpp_lib_char8_t
+__BEGIN_NAMESPACE_STD
+	enum float_round_style;
+	enum float_denorm_style;
+	
+	template<class T> class numeric_limits;
+	
+	template<class T> class numeric_limits<const T>;
+	template<class T> class numeric_limits<volatile T>;
+	template<class T> class numeric_limits<const volatile T>;
+	
+	template<> class numeric_limits<bool>;
+	
+	template<> class numeric_limits<char>;
+	template<> class numeric_limits<signed char>;
+	template<> class numeric_limits<unsigned char>;
+	template<> class numeric_limits<char8_t>;
+	template<> class numeric_limits<char16_t>;
+	template<> class numeric_limits<char32_t>;
+	template<> class numeric_limits<wchar_t>;
+	
+	template<> class numeric_limits<short>;
+	template<> class numeric_limits<int>;
+	template<> class numeric_limits<long>;
+	#if __ARCH == 64
+	template<> class numeric_limits<long long>;
+	#endif
+	template<> class numeric_limits<unsigned short>;
+	template<> class numeric_limits<unsigned int>;
+	template<> class numeric_limits<unsigned long>;
+	#if __ARCH == 64
+	template<> class numeric_limits<unsigned long long>;
+	#endif
+	
+	template<> class numeric_limits<float>;
+	template<> class numeric_limits<double>;
+	template<> class numeric_limits<long double>;
+__END_NAMESPACE_STD
+```
 
 # [climits](../../core-compiler-collection/libc++/include/climits)
 

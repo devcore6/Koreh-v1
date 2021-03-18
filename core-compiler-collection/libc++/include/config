@@ -23,6 +23,16 @@
  * 
  * #undef __CHAR_UNSIGNED__
  * 
+ * #if __cplusplus >= 201103L
+ * #define __HAS_CONSTEXPR__ constexpr
+ * #define __HAS_NOEXCEPT__ noexcept
+ * #define __HAS_NORETURN__ [[noreturn]]
+ * #else
+ * #define __HAS_CONSTEXPR__
+ * #define __HAS_NOEXCEPT__
+ * #define __HAS_NORETURN__
+ * #endif
+ * 
  */
 
 #ifndef __LIBCPP_CONFIG
@@ -33,7 +43,7 @@
 #  define __END_NAMESPACE_STD }
 # else
 #  define __BEGIN_NAMESPACE_STD
-#  defien __END_NAMESPACE_STD
+#  define __END_NAMESPACE_STD
 # endif
 
 # define __LIBCPP_VERSION 1
@@ -42,4 +52,14 @@
 #  undef __CHAR_UNSIGNED__
 # endif
 
-#endif
+# if __cplusplus >= 201103L	// constexpr, noexcept and noreturn introduced in C++11
+#  define __HAS_CONSTEXPR__ constexpr
+#  define __HAS_NOEXCEPT__ noexcept
+#  define __HAS_NORETURN__ [[noreturn]]
+# else
+#  define __HAS_CONSTEXPR__
+#  define __HAS_NOEXCEPT__
+#  define __HAS_NORETURN__
+# endif // __cplusplus >= 201103L
+
+#endif // __LIBCPP_CONFIG

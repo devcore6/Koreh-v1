@@ -59,7 +59,7 @@ __BEGIN_NAMESPACE_STD
 	void (*atexit31)() = nullptr;
 #endif
 
-	[[noreturn]] void abort() noexcept {
+	__HAS_NORETURN__ void abort() __HAS_NOEXCEPT__ {
 #ifndef __LIBCPP_IS_KERNEL
 		/* 
 		 * todo: quit
@@ -67,7 +67,7 @@ __BEGIN_NAMESPACE_STD
 #endif
 	}
 
-	int atexit(void (*func)()) noexcept {
+	int atexit(void (*func)()) __HAS_NOEXCEPT__ {
 #ifndef __LIBCPP_IS_KERNEL
 		if(atexit0 == nullptr) { atexit0 = func; return 0; }
 		if(atexit1 == nullptr) { atexit1 = func; return 0; }
@@ -104,9 +104,9 @@ __BEGIN_NAMESPACE_STD
 #endif
 		return -1;
 	}
-	int at_quick_exit(void (*func)()) noexcept { return atexit(func); }
+	int at_quick_exit(void (*func)()) __HAS_NOEXCEPT__ { return atexit(func); }
 
-	[[noreturn]] void exit(int status) {
+	__HAS_NORETURN__ void exit(int status) {
 #ifndef __LIBCPP_IS_KERNEL
 		if(atexit0 != nullptr) atexit0();
 		if(atexit1 != nullptr) atexit1();
@@ -146,7 +146,7 @@ __BEGIN_NAMESPACE_STD
 #endif
 	}
 
-	[[noreturn]] void _Exit(int status) noexcept { exit(status); }
-	[[noreturn]] void quick_exit(int status) noexcept { exit(status); }
+	__HAS_NORETURN__ void _Exit(int status) __HAS_NOEXCEPT__ { exit(status); }
+	__HAS_NORETURN__ void quick_exit(int status) __HAS_NOEXCEPT__ { exit(status); }
 
 __END_NAMESPACE_STD

@@ -20,24 +20,71 @@
 
 __BEGIN_NAMESPACE_STD
 
-	void* aligned_alloc(size_t alignment, size_t size) {
+#ifdef __LIBCPP_IS_KERNEL
+	void* do_aligned_alloc(size_t alignment, size_t size) {
 
 	}
 
-	void* calloc(size_t nmemb, size_t size) {
+	void* do_calloc(size_t nmemb, size_t size) {
 
 	}
 
-	void free(void* ptr) {
+	void do_free(void* ptr) {
 
 	}
 
-	void* malloc(size_t size) {
+	void* do_malloc(size_t size) {
 
 	}
 	
-	void* realloc(void* ptr, size_t size) {
+	void* do_realloc(void* ptr, size_t size) {
 
 	}
+#endif // __LIBCPP_IS_KERNEL
+
+void* aligned_alloc(size_t alignment, size_t size) {
+#ifdef __LIBCPP_IS_KERNEL
+	do_alligned_alloc(alignment, size);
+#else
+	// todo: kernel call whenever kernel is a thing
+
+#endif
+}
+
+void* calloc(size_t nmemb, size_t size) {
+#ifdef __LIBCPP_IS_KERNEL
+	do_calloc(alignment, size);
+#else
+	// todo: kernel call whenever kernel is a thing
+	
+#endif
+}
+
+void free(void* ptr) {
+#ifdef __LIBCPP_IS_KERNEL
+	do_free(alignment, size);
+#else
+	// todo: kernel call whenever kernel is a thing
+	
+#endif
+}
+
+void* malloc(size_t size) {
+#ifdef __LIBCPP_IS_KERNEL
+	do_malloc(alignment, size);
+#else
+	// todo: kernel call whenever kernel is a thing
+	
+#endif
+}
+
+void* realloc(void* ptr, size_t size) {
+#ifdef __LIBCPP_IS_KERNEL
+	do_realloc(alignment, size);
+#else
+	// todo: kernel call whenever kernel is a thing
+	
+#endif
+}
 
 __END_NAMESPACE_STD

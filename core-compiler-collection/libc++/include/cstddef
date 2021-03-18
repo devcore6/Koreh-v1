@@ -79,44 +79,44 @@ __BEGIN_NAMESPACE_STD
 	 * Clause 17.2.5 defines byte operations as such
 	 */
 	template<class IntType>
-	constexpr byte& operator<<=(byte& b, IntType shift) noexcept {
+	__HAS_CONSTEXPR__ byte& operator<<=(byte& b, IntType shift) __HAS__NOEXCEPT__ {
 		return b = b << shift;
 	}
 	template<class IntType>
-	constexpr byte operator<<(byte b, IntType shift) noexcept {
+	__HAS_CONSTEXPR__ byte operator<<(byte b, IntType shift) __HAS__NOEXCEPT__ {
 		return static_cast<byte>(static_cast<unsigned int>(b) << shift);
 	}
 	template<class IntType>
-	constexpr byte& operator>>=(byte& b, IntType shift) noexcept {
+	__HAS_CONSTEXPR__ byte& operator>>=(byte& b, IntType shift) __HAS__NOEXCEPT__ {
 		return b = b >> shift;
 	}
 	template<class IntType>
-	constexpr byte operator>>(byte b, IntType shift) noexcept {
+	__HAS_CONSTEXPR__ byte operator>>(byte b, IntType shift) __HAS__NOEXCEPT__ {
 		return static_cast<byte>(static_cast<unsigned int>(b) >> shift);
 	}
-	constexpr byte& operator|=(byte& l, byte r) noexcept {
+	__HAS_CONSTEXPR__ byte& operator|=(byte& l, byte r) __HAS__NOEXCEPT__ {
 		return l = (byte)(unsigned char)((unsigned)l | (unsigned)r);
 	}
-	constexpr byte operator|(byte l, byte r) noexcept {
+	__HAS_CONSTEXPR__ byte operator|(byte l, byte r) __HAS__NOEXCEPT__ {
 		return static_cast<byte>(static_cast<unsigned int>(l) | static_cast<unsigned int>(r));
 	}
-	constexpr byte& operator&=(byte& l, byte r) noexcept {
+	__HAS_CONSTEXPR__ byte& operator&=(byte& l, byte r) __HAS__NOEXCEPT__ {
 		return l = (byte)(unsigned char)((unsigned)l & (unsigned)r);
 	}
-	constexpr byte operator&(byte l, byte r) noexcept {
+	__HAS_CONSTEXPR__ byte operator&(byte l, byte r) __HAS__NOEXCEPT__ {
 		return static_cast<byte>(static_cast<unsigned int>(l) & static_cast<unsigned int>(r));
 	}
-	constexpr byte& operator^=(byte& l, byte r) noexcept {
+	__HAS_CONSTEXPR__ byte& operator^=(byte& l, byte r) __HAS__NOEXCEPT__ {
 		return l = (byte)(unsigned char)((unsigned)l ^ (unsigned)r);
 	}
-	constexpr byte operator^(byte l, byte r) noexcept {
+	__HAS_CONSTEXPR__ byte operator^(byte l, byte r) __HAS__NOEXCEPT__ {
 		return static_cast<byte>(static_cast<unsigned int>(l) ^ static_cast<unsigned int>(r));
 	}
-	constexpr byte operator~(byte b) noexcept {
+	__HAS_CONSTEXPR__ byte operator~(byte b) __HAS__NOEXCEPT__ {
 		return static_cast<byte>(~static_cast<unsigned int>(b));
 	}
 	template<class IntType>
-	constexpr IntType to_integer(byte b) noexcept {
+	__HAS_CONSTEXPR__ IntType to_integer(byte b) __HAS__NOEXCEPT__ {
 		return static_cast<IntType>(b);
 	}
 # endif // __cplusplus >= __cpp_lib_byte

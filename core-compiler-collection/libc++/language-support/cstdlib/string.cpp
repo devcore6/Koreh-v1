@@ -17,6 +17,7 @@
  */
 
 #include <cstdlib>
+#include <limits>
 #include <cctype>
 #include <cmath>
 
@@ -45,11 +46,11 @@ __BEGIN_NAMESPACE_STD
 		}
 #if __cplusplus >= 201103L									// C++11 adds support for NAN, INF/INFINITY and hex numbers in 0x formatting
 		if(!isdigit(*nptr)) {								// Not a character, check for NAN/INF/INFINITY
-			if(tolower(*nptr) == 'n' && tolower(*(nptr + 1)) == 'a' && tolower(*(nptr + 2)) == 'n') return NAN;
-			if(tolower(*nptr) == 'i' && tolower(*(nptr + 1)) == 'n' && tolower(*(nptr + 2)) == 'f' && *(nptr + 3) == 0) return INFINITY;
+			if(tolower(*nptr) == 'n' && tolower(*(nptr + 1)) == 'a' && tolower(*(nptr + 2)) == 'n') return numeric_limits<double::signaling_NaN();
+			if(tolower(*nptr) == 'i' && tolower(*(nptr + 1)) == 'n' && tolower(*(nptr + 2)) == 'f' && *(nptr + 3) == 0) return numeric_limits<double>::infinity();
 			if(tolower(*nptr) == 'i' && tolower(*(nptr + 1)) == 'n' && tolower(*(nptr + 2)) == 'f' && tolower(*(nptr + 3)) == 'i' && \
 			   tolower(*(nptr + 4)) == 'n' && tolower(*(nptr + 5)) == 'i' && tolower(*(nptr + 6)) == 't' && tolower(*(nptr + 7)) == 'y' && \
-			  *(nptr + 8) == 0) return INFINITY;
+			  *(nptr + 8) == 0) return numeric_limits<double>::infinity();
 		}
 		if(*nptr == '0' && tolower(*(nptr + 1)) == 'x') {	// 0x indicates a hex number
 			nptr + 2;										// Move two characters forward
@@ -124,11 +125,11 @@ __BEGIN_NAMESPACE_STD
 		}
 #if __cplusplus >= 201103L									// C++11 adds support for NAN, INF/INFINITY and hex numbers in 0x formatting
 		if(!isdigit(*nptr)) {								// Not a character, check for NAN/INF/INFINITY
-			if(tolower(*nptr) == 'n' && tolower(*(nptr + 1)) == 'a' && tolower(*(nptr + 2)) == 'n') return NAN;
-			if(tolower(*nptr) == 'i' && tolower(*(nptr + 1)) == 'n' && tolower(*(nptr + 2)) == 'f' && *(nptr + 3) == 0) return INFINITY;
+			if(tolower(*nptr) == 'n' && tolower(*(nptr + 1)) == 'a' && tolower(*(nptr + 2)) == 'n') return numeric_limits<float>::signaling_NaN();
+			if(tolower(*nptr) == 'i' && tolower(*(nptr + 1)) == 'n' && tolower(*(nptr + 2)) == 'f' && *(nptr + 3) == 0) return numeric_limits<float>::infinity();
 			if(tolower(*nptr) == 'i' && tolower(*(nptr + 1)) == 'n' && tolower(*(nptr + 2)) == 'f' && tolower(*(nptr + 3)) == 'i' && \
 			   tolower(*(nptr + 4)) == 'n' && tolower(*(nptr + 5)) == 'i' && tolower(*(nptr + 6)) == 't' && tolower(*(nptr + 7)) == 'y' && \
-			  *(nptr + 8) == 0) return INFINITY;
+			  *(nptr + 8) == 0) return numeric_limits<float>::infinity();
 		}
 		if(*nptr == '0' && tolower(*(nptr + 1)) == 'x') {	// 0x indicates a hex number
 			nptr + 2;										// Move two characters forward
@@ -208,11 +209,11 @@ __BEGIN_NAMESPACE_STD
 		}
 #if __cplusplus >= 201103L									// C++11 adds support for NAN, INF/INFINITY and hex numbers in 0x formatting
 		if(!isdigit(*nptr)) {								// Not a character, check for NAN/INF/INFINITY
-			if(tolower(*nptr) == 'n' && tolower(*(nptr + 1)) == 'a' && tolower(*(nptr + 2)) == 'n') return NAN;
-			if(tolower(*nptr) == 'i' && tolower(*(nptr + 1)) == 'n' && tolower(*(nptr + 2)) == 'f' && *(nptr + 3) == 0) return INFINITY;
+			if(tolower(*nptr) == 'n' && tolower(*(nptr + 1)) == 'a' && tolower(*(nptr + 2)) == 'n') return numeric_limits<long double>::signaling_NaN();
+			if(tolower(*nptr) == 'i' && tolower(*(nptr + 1)) == 'n' && tolower(*(nptr + 2)) == 'f' && *(nptr + 3) == 0) return numeric_limits<long double>::infinity();
 			if(tolower(*nptr) == 'i' && tolower(*(nptr + 1)) == 'n' && tolower(*(nptr + 2)) == 'f' && tolower(*(nptr + 3)) == 'i' && \
 			   tolower(*(nptr + 4)) == 'n' && tolower(*(nptr + 5)) == 'i' && tolower(*(nptr + 6)) == 't' && tolower(*(nptr + 7)) == 'y' && \
-			  *(nptr + 8) == 0) return INFINITY;
+			  *(nptr + 8) == 0) return numeric_limits<long double>::infinity();
 		}
 		if(*nptr == '0' && tolower(*(nptr + 1)) == 'x') {	// 0x indicates a hex number
 			nptr + 2;										// Move two characters forward
@@ -387,6 +388,7 @@ __BEGIN_NAMESPACE_STD
 # endif // __ARCH == 64 && __cplusplus >= 201103L
 
 	int mblen(const char* s, size_t n) {
+		if(!s || !*s) return 0;
 
 	}
 
