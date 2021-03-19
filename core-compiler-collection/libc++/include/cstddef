@@ -1,16 +1,17 @@
 /* 
  * The Koreh-v1 Project
- * Koreh-v1 C++ Compiler (ccxx)
+ * Koreh-v1 C/C++ Compiler (ccxx)
  * 
  * Copyright (C) 2021, Bryan "/dev/core" M.
  * Licensed under the Mozilla Public License 2.0
  * https://www.mozilla.org/en-US/MPL/2.0/
  * 
  * Common language definitions as defined in
- * Clause 17.2.1 of the ISO-C++ 23 working draft.
+ * Clause 17.2.1 of the ISO-C++23 working draft.
  * 
  * The ISO documents referenced by this compiler can be found at
- * http://open-std.org/JTC1/SC22/WG21/docs/papers/2020/n4878.pdf
+ * http://open-std.org/JTC1/SC22/WG21/docs/papers/2020/n4878.pdf (C++23 Working Draft)
+ * http://open-std.org/JTC1/SC22/WG14/www/docs/n2310.pdf (C2x Working Draft)
  * 
  */
 
@@ -58,6 +59,8 @@
 
 # include <config>
 
+# include <stddef.h>
+
 # ifndef __cpp_lib_byte
 #  define __cpp_lib_byte 201603L
 # endif // __cpp_lib_byte
@@ -70,7 +73,7 @@ __BEGIN_NAMESPACE_STD
 # else
 	using ptrdiff_t = long;
 	using size_t = unsigned long;
-#endif // __ARCH == 64
+# endif // __ARCH == 64
 	using max_align_t = long double;
 	using nullptr_t = decltype(nullptr);
 # if __cplusplus >= __cpp_lib_byte
@@ -122,23 +125,5 @@ __BEGIN_NAMESPACE_STD
 # endif // __cplusplus >= __cpp_lib_byte
 
 __END_NAMESPACE_STD
-
-/*
- * Clause 17.2.3 paragraph 2 defines NULL as a macro to a
- * null pointer constant
- */
-# ifndef NULL
-#  ifdef __cplusplus
-#   define NULL nullptr
-#  else
-#   define NULL (void*)0
-#  endif
-# endif
-
-/*
- * We define offsetoff through a builtin language extension in the compiler
- */
-# define offsetof(P, D) \
-	__builtin_offsetof(P, D)
 
 #endif // __LIBCPP_CSTDDEF

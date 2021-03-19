@@ -18,26 +18,8 @@
 /* 
  * synopsis:
  * 
- * #define __BEGIN_NAMESPACE_STD
- * #define __END_NAMESPACE_STD
- * #define __LIBCPP_VERSION
- * 
- * #define __CHAR_BIT__ 8
- * #undef __CHAR_UNSIGNED__
- * #define __CHAR_SIGN__
- * 
- * #define __INTEGRAL_TRAPS__
- * 
- * #if __cplusplus >= 201103L
- * #define __HAS_CONSTEXPR__ constexpr
- * #define __HAS_NOEXCEPT__ noexcept
- * #define __HAS_NORETURN__ [[noreturn]]
- * #else
- * #define __HAS_CONSTEXPR__
- * #define __HAS_NOEXCEPT__
- * #define __HAS_NORETURN__
- * #endif
- * 
+ * #define __LIBC_VERSION
+
  * #define __FLT_MIN__ 1.17549435e-38f
  * #define __FLT_MAX__ 3.40282347e+38f
  * #define __FLT_DIGITS__ 24
@@ -74,43 +56,43 @@
  * 
  */
 
-#ifndef __LIBCPP_CONFIG
-# define __LIBCPP_CONFIG
+#ifndef __LIBC_CONFIG_H
+# define __LIBC_CONFIG_H
 
-# ifdef __cplusplus
-#  define __BEGIN_NAMESPACE_STD namespace std {
-#  define __END_NAMESPACE_STD }
-# else
-#  define __BEGIN_NAMESPACE_STD
-#  define __END_NAMESPACE_STD
-# endif
+# define __LIBC_VERSION 1
 
-# define __LIBCPP_VERSION 1
+# define __FLT_MIN__ 1.17549435e-38f
+# define __FLT_MAX__ 3.40282347e+38f
+# define __FLT_DIGITS__ 24
+# define __FLT_DIGITS10__ 6
+# define __FLT_RADIX__ 2
+# define __FLT_EPSILON__ 1.19209290e-7f
+# define __FLT_MIN_EXP__ (-125)
+# define __FLT_MIN_EXP_10__ (-37)
+# define __FLT_MAX_EXP__ 128
+# define __FLT_MAX_EXP_10__ 38
+# define __FLT_DENORM_MIN 1.40129846e-45f
 
-# define __CHAR_BIT__ 8
+# define __DBL_MIN__ 2.2250738585072014e-308
+# define __DBL_MAX__ 1.7976931348623157e+308
+# define __DBL_DIGITS__ 53
+# define __DBL_DIGITS10__ 15
+# define __DBL_EPSILON__ 2.2204460492503131e-16
+# define __DBL_MIN_EXP__ (-1021)
+# define __DBL_MIN_EXP_10__ (-307)
+# define __DBL_MAX_EXP__ 1024
+# define __DBL_MAX_EXP_10__ 308
+# define __DBL_DENORM_MIN 1.40129846e-45f
 
-# ifdef __CHAR_UNSIGNED__
-#  undef __CHAR_UNSIGNED__
-# endif // __CHAR_UNSIGNED__
+# define __LDBL_MIN__ 3.36210314311209350626e-4932l
+# define __LDBL_MAX__ 1.18973149535723176502e+4932l
+# define __LDBL_DIGITS__ 64
+# define __LDBL_DIGITS10__ 18
+# define __LDBL_EPSILON__ 1.08420217248550443401e-19l
+# define __LDBL_MIN_EXP__ (-16381)
+# define __LDBL_MIN_EXP_10__ (-4931)
+# define __LDBL_MAX_EXP__ 16384
+# define __LDBL_MAX_EXP_10__ 4932
+# define __LDBL_DENORM_MIN 3.64519953188247460253e-4951l
 
-# ifdef __CHAR_UNSIGNED__
-#  define __CHAR_SIGN__ false
-# else
-#  define __CHAR_SIGN__ true
-# endif // __CHAR_UNSIGNED__
-
-# define __INTEGRAL_TRAPS__ true
-
-# if __cplusplus >= 201103L	// constexpr, noexcept and noreturn introduced in C++11
-#  define __HAS_CONSTEXPR__ constexpr
-#  define __HAS_NOEXCEPT__ noexcept
-#  define __HAS_NORETURN__ [[noreturn]]
-# else
-#  define __HAS_CONSTEXPR__
-#  define __HAS_NOEXCEPT__
-#  define __HAS_NORETURN__
-# endif // __cplusplus >= 201103L
-
-# include <config.h>
-
-#endif // __LIBCPP_CONFIG
+#endif // __LIBC_CONFIG_H

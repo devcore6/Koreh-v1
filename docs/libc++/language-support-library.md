@@ -30,7 +30,7 @@ This file implements macros and configurations used by my implementation of the 
 #define __END_NAMESPACE_STD
 #define __LIBCPP_VERSION
 
-#define __CHAR_BIT__
+#define __CHAR_BIT__ 8
 #undef __CHAR_UNSIGNED__
 #define __CHAR_SIGN__
 
