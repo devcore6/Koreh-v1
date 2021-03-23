@@ -62,5 +62,6 @@
 
 #ifndef __LIBC_FLOAT_H
 # define __LIBC_FLOAT_H
+# include <config.h>
 
 #endif // __LIBC_FLOAT_H

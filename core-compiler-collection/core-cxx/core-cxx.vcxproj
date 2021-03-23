@@ -148,11 +148,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="02-line-splicing.cpp" />
-    <ClCompile Include="01-character-mapping.cpp" />
     <ClCompile Include="03-cleanup.cpp" />
+    <ClCompile Include="04-preprocessor.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="01-character-mapping.hpp" />
     <ClInclude Include="shared.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
