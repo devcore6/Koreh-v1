@@ -116,6 +116,7 @@ std::string cleanup(std::string in_file, std::string file_name) {
 			std::cerr << "Error: ISO-C++23 5.2 p1.3: A source file shall not end in a partial preprocessing token or in a partial comment." << std::endl;
 		else
 			std::cerr << "Error: ISO-C2x 5.1.1.2 p1.3: A source file shall not end in a partial preprocessing token or in a partial comment." << std::endl;
+		exit(EXIT_FAILURE);
 	}
 	return out_file;
 }

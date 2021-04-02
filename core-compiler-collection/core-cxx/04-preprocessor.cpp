@@ -22,5 +22,24 @@ std::string include(std::string file, bool search_type) {
 }
 
 std::string preprocess(std::string in_file, std::string file_name) {
-	return "";
+	std::ifstream ifs;
+	ifs.open(in_file, std::ios::in);
+	if(!ifs.is_open()) {
+		std::cerr << "Fatal error: failed opening temporary input file \"" << in_file << "\"" << std::endl;
+		exit(ENOENT);
+	}
+	std::ofstream ofs;
+	std::string out_file = std::filesystem::temp_directory_path().string() + file_name + "-preprocessed-2.cpp";
+	ofs.open(out_file, std::ios::out);
+	if(!ofs.is_open()) {
+		std::cerr << "Fatal error: failed opening temporary output file" << std::endl;
+		exit(EIO);
+	}
+
+
+
+	ifs.close();
+	ofs.close();
+	std::filesystem::remove(std::filesystem::absolute(in_file));	// Delete temporary file
+	return out_file;
 }
