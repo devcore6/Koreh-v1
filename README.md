@@ -24,9 +24,10 @@
 	2\. [FPU](docs/arch/registers.md#fpu)
 4. [Interrupt table](docs/arch/interrupts.md)
 
-	1\. [Hardware-generated exceptions](#hardware-generated-exceptions)
+	1\. [Hardware-generated exceptions](docs/arch/interrupts.md#hardware-generated-exceptions)
 	
-	2\. [IO-generated interrupts](#io-generated-interrupts)
+	2\. [IO-generated interrupts](docs/arch/interrupts.md#io-generated-interrupts)
+5. [Graphics](docs/arch/graphics.md)
 
 ### C++ Compiler
 1. [ISO-C++23 Working draft used for the compiler](http://open-std.org/JTC1/SC22/WG21/docs/papers/2020/n4878.pdf)
@@ -69,5 +70,3 @@
 	17\. csetjmp: [synopsis](docs/libc++/language-support-library.md#csetjmp) - [header](core-compiler-collection/libc++/include/csetjmp)
 
 	18\. csignal: [synopsis](docs/libc++/language-support-library.md#csignal) - [header](core-compiler-collection/libc++/include/csignal)
-
-	19\. config: [synopsis](docs/libc++/language-support-library.md#config) - [header](core-compiler-collection/libc++/include/config)

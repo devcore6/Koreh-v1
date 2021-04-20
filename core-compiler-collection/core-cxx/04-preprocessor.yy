@@ -22,6 +22,7 @@
 %token HEXADECIMAL_PREFIX LONG_LONG_SUFFIX
 %token LQUOTE UQUOTE
 %token ESCAPE_QUOTE ESCAPE_DQUOTE ESCAPE_QMARK ESCAPE_BACKSLASH ESCAPE_A ESCAPE_B ESCAPE_FORMFEED ESCAPE_NEWLINE ESCAPE_RETURN ESCAPE_HTAB ESCAPE_VTAB ESCAPE_X
+%token INCLUDE DEFINE UNDEF LINE ERROR PRAGMA
 
 // %destructor { delete $$; } 
 
@@ -266,9 +267,9 @@ floating_suffix_opt:
 
 
 
-character_constant: '\'' c_char '\''
-                    LQUOTE c_char '\''
-                    UQUOTE c_char '\''
+character_constant: '\'' c_char_sequence '\''
+                    LQUOTE c_char_sequence '\''
+                    UQUOTE c_char_sequence '\''
 
 c_char: 'a'
 	  | 'b'
@@ -365,6 +366,9 @@ c_char: 'a'
 	  | ' '
 	  | escape_sequence
 
+c_char_sequence: c_char
+			   | c_char_sequence c_char
+
 escape_sequence: simple_escape_sequence
                | octal_escape_sequence
                | hexadecimal_escape_sequence
@@ -447,41 +451,32 @@ conditional_expression: logical_OR_expression
 
 constant_expression: conditional_expression
 
-/*(6.10) control-line:
-# include pp-tokens new_line
-# define identifier replacement-list new_line
-# define identifier lparen identifier-listopt )
-replacement-list new_line
-# define identifier lparen ... ) replacement-list new_line
-# define identifier lparen identifier-list , ... )
-replacement-list new_line
-# undef identifier new_line
-# line pp-tokens new_line
-# error pp-tokensopt new_line
-# pragma pp-tokensopt new_line
-# new_line
-(6.10) text-line:
-pp-tokensopt new_line
-(6.10) non-directive:
-pp-tokens new_line
-(6.10) lparen:
-a ( character not immediately preceded by white space
-space
-(6.10) replacement-list:
-pp-tokensopt
-(6.10) pp-tokens:
-preprocessing-token
-pp-tokens preprocessing-token
-(6.10) new_line:
-the new_line character
-(6.10.6) on-off-switch: one of
-ON OFF DEFAULT
+control_line: '#' INCLUDE header_name new_line
+			| '#' DEFINE identifier replacement_list new_line
+			| '#' DEFINE identifier '(' identifier_list_opt ')' replacement_list new_line
+			| '#' UNDEF identifier new_line
+			| '#' LINE pp_tokens new_line
+			| '#' ERROR pp_tokens_opt new_line
+			| '#' PRAGMA pp_tokens_opt new_line
+			| '#' new_line
 
+text_line: pp_tokens_opt new_line
 
-preprocessing_token: header_name
-                   | identifier
+non_directive: pp_tokens new_line
+
+replacement_list: pp_tokens_opt
+
+pp_tokens: preprocessing_token
+		 | pp_tokens preprocessing_token
+
+pp_tokens_opt:
+			 | pp_tokens
+
+new_line: '\n'
+
+preprocessing_token: identifier
                    | pp_number
                    | character_constant
                    | string_literal
                    | punctuator
-                   | non_white_space*/
+                   | non_white_space

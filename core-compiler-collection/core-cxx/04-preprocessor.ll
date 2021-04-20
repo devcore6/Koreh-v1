@@ -21,6 +21,13 @@
 "else" { return ELSE; }
 "endif" { return ENDIF; }
 
+"include" { return INCLUDE; }
+"define" { return DEFINE; }
+"undef" { return UNDEF; }
+"line" { return LINE; }
+"error" { return ERROR; }
+"pragma" { return PRAGMA; }
+
 "||" { return DOUBLE_PIPE; }
 "&&" { return DOUBLE_AND; }
 "==" { return DOUBLE_EQUAL; }
