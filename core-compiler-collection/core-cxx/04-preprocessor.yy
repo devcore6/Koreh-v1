@@ -23,10 +23,45 @@
 %token LQUOTE UQUOTE
 %token ESCAPE_QUOTE ESCAPE_DQUOTE ESCAPE_QMARK ESCAPE_BACKSLASH ESCAPE_A ESCAPE_B ESCAPE_FORMFEED ESCAPE_NEWLINE ESCAPE_RETURN ESCAPE_HTAB ESCAPE_VTAB ESCAPE_X
 %token INCLUDE DEFINE UNDEF LINE ERROR PRAGMA
+%token UTF8_PREFIX UNIVERSAL_CHARACTER_ESCAPE DOUBLE_UNIVERSAL_CHARACTER_ESCAPE
+%token IMPORT MODULE EXPORT
+%token DOUBLE_HASH
 
 // %destructor { delete $$; } 
 
 %%
+
+pp_keyword: IF
+          | IFDEF
+          | IFNDEF
+          | ELIF
+          | ELSE
+          | ENDIF
+          | INCLUDE
+          | DEFINE
+          | UNDEF
+          | LINE
+          | ERROR
+          | PRAGMA
+          | IMPORT
+          | MODULE
+          | EXPORT
+
+pp_suffix: LONG_LONG_SUFFIX
+
+pp_prefix: UTF8_PREFIX
+         | UNIVERSAL_CHARACTER_ESCAPE
+         | DOUBLE_UNIVERSAL_CHARACTER_ESCAPE
+
+pp_symbol: DOUBLE_PIPE
+         | DOUBLE_AND
+         | DOUBLE_EQUAL
+         | NOT_EQUAL
+         | LOWER_EQUAL
+         | GREATER_EQUAL
+         | LSHIFT
+         | RSHIFT
+         | DOUBLE_HASH
 
 new_line: '\n'
 
@@ -70,62 +105,68 @@ endif_line: '#' ENDIF new_line                                          // An #e
 identifier: identifier_nondigit
           | identifier identifier_nondigit
           | identifier digit
+          | identifier pp_keyword // Not included in the PDF, but needed for how our implementation works
+          | pp_keyword identifier // Not included in the PDF, but needed for how our implementation works
+          | pp_suffix // Not included in the PDF, but needed for how our implementation works
+          | identifier pp_suffix // Not included in the PDF, but needed for how our implementation works
+          | pp_prefix // Not included in the PDF, but needed for how our implementation works
+          | identifier pp_prefix // Not included in the PDF, but needed for how our implementation works
 
 identifier_nondigit: nondigit
 
 nondigit: '_'
-		| 'a'
-		| 'b'
-		| 'c'
-		| 'd'
-		| 'e'
-		| 'f'
-		| 'g'
-		| 'h'
-		| 'i'
-		| 'j'
-		| 'k'
-		| 'l'
-		| 'm'
-		| 'n'
-		| 'o'
-		| 'p'
-		| 'q'
-		| 'r'
-		| 's'
-		| 't'
-		| 'u'
-		| 'v'
-		| 'w'
-		| 'x'
-		| 'y'
-		| 'z'
-		| 'A'
-		| 'B'
-		| 'C'
-		| 'D'
-		| 'E'
-		| 'F'
-		| 'G'
-		| 'H'
-		| 'I'
-		| 'J'
-		| 'K'
-		| 'L'
-		| 'M'
-		| 'N'
-		| 'O'
-		| 'P'
-		| 'Q'
-		| 'R'
-		| 'S'
-		| 'T'
-		| 'U'
-		| 'V'
-		| 'W'
-		| 'X'
-		| 'Y'
-		| 'Z'
+        | 'a'
+        | 'b'
+        | 'c'
+        | 'd'
+        | 'e'
+        | 'f'
+        | 'g'
+        | 'h'
+        | 'i'
+        | 'j'
+        | 'k'
+        | 'l'
+        | 'm'
+        | 'n'
+        | 'o'
+        | 'p'
+        | 'q'
+        | 'r'
+        | 's'
+        | 't'
+        | 'u'
+        | 'v'
+        | 'w'
+        | 'x'
+        | 'y'
+        | 'z'
+        | 'A'
+        | 'B'
+        | 'C'
+        | 'D'
+        | 'E'
+        | 'F'
+        | 'G'
+        | 'H'
+        | 'I'
+        | 'J'
+        | 'K'
+        | 'L'
+        | 'M'
+        | 'N'
+        | 'O'
+        | 'P'
+        | 'Q'
+        | 'R'
+        | 'S'
+        | 'T'
+        | 'U'
+        | 'V'
+        | 'W'
+        | 'X'
+        | 'Y'
+        | 'Z'
 
 digit: '0'
      | '1'
@@ -272,102 +313,106 @@ character_constant: '\'' c_char_sequence '\''
                     UQUOTE c_char_sequence '\''
 
 c_char: 'a'
-	  | 'b'
-	  | 'c'
-	  | 'd'
-	  | 'e'
-	  | 'f'
-	  | 'g'
-	  | 'h'
-	  | 'i'
-	  | 'j'
-	  | 'k'
-	  | 'l'
-	  | 'm'
-	  | 'n'
-	  | 'o'
-	  | 'p'
-	  | 'q'
-	  | 'r'
-	  | 's'
-	  | 't'
-	  | 'u'
-	  | 'v'
-	  | 'w'
-	  | 'x'
-	  | 'y'
-	  | 'z'
-	  | 'A'
-	  | 'B'
-	  | 'C'
-	  | 'D'
-	  | 'E'
-	  | 'F'
-	  | 'G'
-	  | 'H'
-	  | 'I'
-	  | 'J'
-	  | 'K'
-	  | 'L'
-	  | 'M'
-	  | 'N'
-	  | 'O'
-	  | 'P'
-	  | 'Q'
-	  | 'R'
-	  | 'S'
-	  | 'T'
-	  | 'U'
-	  | 'V'
-	  | 'W'
-	  | 'X'
-	  | 'Y'
-	  | 'Z'
-	  | '0'
-	  | '1'
-	  | '2'
-	  | '3'
-	  | '4'
-	  | '5'
-	  | '6'
-	  | '7'
-	  | '8'
-	  | '9'
-	  | '_'
-	  | '{'
-	  | '}'
-	  | '['
-	  | ']'
-	  | '#'
-	  | '('
-	  | ')'
-	  | '<'
-	  | '>'
-	  | '%'
-	  | ':'
-	  | ';'
-	  | '.'
-	  | '?'
-	  | '*'
-	  | '+'
-	  | '-'
-	  | '/'
-	  | '^'
-	  | '&'
-	  | '|'
-	  | '~'
-	  | '!'
-	  | '='
-	  | ','
-	  | '\"'
-	  | '\t'
-	  | '\v'
-	  | '\f'
-	  | ' '
-	  | escape_sequence
+      | 'b'
+      | 'c'
+      | 'd'
+      | 'e'
+      | 'f'
+      | 'g'
+      | 'h'
+      | 'i'
+      | 'j'
+      | 'k'
+      | 'l'
+      | 'm'
+      | 'n'
+      | 'o'
+      | 'p'
+      | 'q'
+      | 'r'
+      | 's'
+      | 't'
+      | 'u'
+      | 'v'
+      | 'w'
+      | 'x'
+      | 'y'
+      | 'z'
+      | 'A'
+      | 'B'
+      | 'C'
+      | 'D'
+      | 'E'
+      | 'F'
+      | 'G'
+      | 'H'
+      | 'I'
+      | 'J'
+      | 'K'
+      | 'L'
+      | 'M'
+      | 'N'
+      | 'O'
+      | 'P'
+      | 'Q'
+      | 'R'
+      | 'S'
+      | 'T'
+      | 'U'
+      | 'V'
+      | 'W'
+      | 'X'
+      | 'Y'
+      | 'Z'
+      | '0'
+      | '1'
+      | '2'
+      | '3'
+      | '4'
+      | '5'
+      | '6'
+      | '7'
+      | '8'
+      | '9'
+      | '_'
+      | '{'
+      | '}'
+      | '['
+      | ']'
+      | '#'
+      | '('
+      | ')'
+      | '<'
+      | '>'
+      | '%'
+      | ':'
+      | ';'
+      | '.'
+      | '?'
+      | '*'
+      | '+'
+      | '-'
+      | '/'
+      | '^'
+      | '&'
+      | '|'
+      | '~'
+      | '!'
+      | '='
+      | ','
+      | '\"'
+      | '\t'
+      | '\v'
+      | '\f'
+      | ' '
+      | escape_sequence
+      | pp_keyword // Not included in the PDF, but needed for how our implementation works
+      | pp_suffix // Not included in the PDF, but needed for how our implementation works
+      | pp_prefix // Not included in the PDF, but needed for how our implementation works
+      | pp_symbol // Not included in the PDF, but needed for how our implementation works
 
 c_char_sequence: c_char
-			   | c_char_sequence c_char
+               | c_char_sequence c_char
 
 escape_sequence: simple_escape_sequence
                | octal_escape_sequence
@@ -451,14 +496,227 @@ conditional_expression: logical_OR_expression
 
 constant_expression: conditional_expression
 
+header_name: '<' h_char_sequence '>'
+           | '"' q_char_sequence '"'
+
+h_char_sequence: h_char
+               | h_char_sequence h_char
+
+h_char: 'a'
+      | 'b'
+      | 'c'
+      | 'd'
+      | 'e'
+      | 'f'
+      | 'g'
+      | 'h'
+      | 'i'
+      | 'j'
+      | 'k'
+      | 'l'
+      | 'm'
+      | 'n'
+      | 'o'
+      | 'p'
+      | 'q'
+      | 'r'
+      | 's'
+      | 't'
+      | 'u'
+      | 'v'
+      | 'w'
+      | 'x'
+      | 'y'
+      | 'z'
+      | 'A'
+      | 'B'
+      | 'C'
+      | 'D'
+      | 'E'
+      | 'F'
+      | 'G'
+      | 'H'
+      | 'I'
+      | 'J'
+      | 'K'
+      | 'L'
+      | 'M'
+      | 'N'
+      | 'O'
+      | 'P'
+      | 'Q'
+      | 'R'
+      | 'S'
+      | 'T'
+      | 'U'
+      | 'V'
+      | 'W'
+      | 'X'
+      | 'Y'
+      | 'Z'
+      | '0'
+      | '1'
+      | '2'
+      | '3'
+      | '4'
+      | '5'
+      | '6'
+      | '7'
+      | '8'
+      | '9'
+      | '_'
+      | '{'
+      | '}'
+      | '['
+      | ']'
+      | '#'
+      | '('
+      | ')'
+      | '<'
+      | '%'
+      | ':'
+      | ';'
+      | '.'
+      | '?'
+      | '*'
+      | '+'
+      | '-'
+      | '/'
+      | '^'
+      | '&'
+      | '|'
+      | '~'
+      | '!'
+      | '='
+      | ','
+      | '\\'
+      | '\"'
+      | '\''
+      | '\t'
+      | '\v'
+      | '\f'
+      | ' '
+      | pp_keyword // Not included in the PDF, but needed for how our implementation works
+      | pp_suffix // Not included in the PDF, but needed for how our implementation works
+      | pp_prefix // Not included in the PDF, but needed for how our implementation works
+      | pp_symbol // Not included in the PDF, but needed for how our implementation works
+
+q_char_sequence: q_char
+               | q_char_sequence q_char
+
+q_char: 'a'
+      | 'b'
+      | 'c'
+      | 'd'
+      | 'e'
+      | 'f'
+      | 'g'
+      | 'h'
+      | 'i'
+      | 'j'
+      | 'k'
+      | 'l'
+      | 'm'
+      | 'n'
+      | 'o'
+      | 'p'
+      | 'q'
+      | 'r'
+      | 's'
+      | 't'
+      | 'u'
+      | 'v'
+      | 'w'
+      | 'x'
+      | 'y'
+      | 'z'
+      | 'A'
+      | 'B'
+      | 'C'
+      | 'D'
+      | 'E'
+      | 'F'
+      | 'G'
+      | 'H'
+      | 'I'
+      | 'J'
+      | 'K'
+      | 'L'
+      | 'M'
+      | 'N'
+      | 'O'
+      | 'P'
+      | 'Q'
+      | 'R'
+      | 'S'
+      | 'T'
+      | 'U'
+      | 'V'
+      | 'W'
+      | 'X'
+      | 'Y'
+      | 'Z'
+      | '0'
+      | '1'
+      | '2'
+      | '3'
+      | '4'
+      | '5'
+      | '6'
+      | '7'
+      | '8'
+      | '9'
+      | '_'
+      | '{'
+      | '}'
+      | '['
+      | ']'
+      | '#'
+      | '('
+      | ')'
+      | '<'
+      | '>'
+      | '%'
+      | ':'
+      | ';'
+      | '.'
+      | '?'
+      | '*'
+      | '+'
+      | '-'
+      | '/'
+      | '^'
+      | '&'
+      | '|'
+      | '~'
+      | '!'
+      | '='
+      | ','
+      | '\\'
+      | '\''
+      | '\t'
+      | '\v'
+      | '\f'
+      | ' '
+      | pp_keyword // Not included in the PDF, but needed for how our implementation works
+      | pp_suffix // Not included in the PDF, but needed for how our implementation works
+      | pp_prefix // Not included in the PDF, but needed for how our implementation works
+      | pp_symbol // Not included in the PDF, but needed for how our implementation works
+
+identifier_list: identifier
+               | identifier_list ',' identifier
+
+identifier_list_opt: 
+                   | identifier_list
+
 control_line: '#' INCLUDE header_name new_line
-			| '#' DEFINE identifier replacement_list new_line
-			| '#' DEFINE identifier '(' identifier_list_opt ')' replacement_list new_line
-			| '#' UNDEF identifier new_line
-			| '#' LINE pp_tokens new_line
-			| '#' ERROR pp_tokens_opt new_line
-			| '#' PRAGMA pp_tokens_opt new_line
-			| '#' new_line
+            | '#' DEFINE identifier replacement_list new_line
+            | '#' DEFINE identifier '(' identifier_list_opt ')' replacement_list new_line
+            | '#' UNDEF identifier new_line
+            | '#' LINE pp_tokens new_line
+            | '#' ERROR pp_tokens_opt new_line
+            | '#' PRAGMA pp_tokens_opt new_line
+            | '#' new_line
 
 text_line: pp_tokens_opt new_line
 
@@ -467,16 +725,154 @@ non_directive: pp_tokens new_line
 replacement_list: pp_tokens_opt
 
 pp_tokens: preprocessing_token
-		 | pp_tokens preprocessing_token
+         | pp_tokens preprocessing_token
 
 pp_tokens_opt:
-			 | pp_tokens
+             | pp_tokens
 
-new_line: '\n'
+pp_number: digit
+         | '.' digit
+         | pp_number digit
+         | pp_number identifier_nondigit
+         | pp_number '’' digit
+         | pp_number '’' nondigit
+         | pp_number 'e' sign
+         | pp_number 'E' sign
+         | pp_number 'p' sign
+         | pp_number 'P' sign
+         | pp_number '.'
 
-preprocessing_token: identifier
+encoding_prefix: 'L'
+               | UTF8_PREFIX
+               | 'u'
+               | 'U'
+
+encoding_prefix_opt:
+                   | encoding_prefix
+
+string_literal: encoding_prefix_opt '"' s_char_sequence_opt '"'
+//              | encoding_prefix_opt 'R' raw_string // raw string may come at some point in the future
+
+s_char_sequence: s_char
+               | s_char_sequence s_char
+
+s_char_sequence_opt:
+                   | s_char_sequence
+
+hex_quad: hexadecimal_digit hexadecimal_digit hexadecimal_digit hexadecimal_digit
+
+universal_character_name: UNIVERSAL_CHARACTER_ESCAPE hex_quad
+                        | DOUBLE_UNIVERSAL_CHARACTER_ESCAPE hex_quad hex_quad
+
+s_char: basic_s_char
+      | escape_sequence
+      | universal_character_name
+      | pp_prefix // Not included in the PDF, but needed for how our implementation works
+      | pp_suffix // Not included in the PDF, but needed for how our implementation works
+      | pp_keyword // Not included in the PDF, but needed for how our implementation works
+      | pp_symbol // Not included in the PDF, but needed for how our implementation works
+
+basic_s_char: 'a'
+            | 'b'
+            | 'c'
+            | 'd'
+            | 'e'
+            | 'f'
+            | 'g'
+            | 'h'
+            | 'i'
+            | 'j'
+            | 'k'
+            | 'l'
+            | 'm'
+            | 'n'
+            | 'o'
+            | 'p'
+            | 'q'
+            | 'r'
+            | 's'
+            | 't'
+            | 'u'
+            | 'v'
+            | 'w'
+            | 'x'
+            | 'y'
+            | 'z'
+            | 'A'
+            | 'B'
+            | 'C'
+            | 'D'
+            | 'E'
+            | 'F'
+            | 'G'
+            | 'H'
+            | 'I'
+            | 'J'
+            | 'K'
+            | 'L'
+            | 'M'
+            | 'N'
+            | 'O'
+            | 'P'
+            | 'Q'
+            | 'R'
+            | 'S'
+            | 'T'
+            | 'U'
+            | 'V'
+            | 'W'
+            | 'X'
+            | 'Y'
+            | 'Z'
+            | '0'
+            | '1'
+            | '2'
+            | '3'
+            | '4'
+            | '5'
+            | '6'
+            | '7'
+            | '8'
+            | '9'
+            | '_'
+            | '{'
+            | '}'
+            | '['
+            | ']'
+            | '#'
+            | '('
+            | ')'
+            | '<'
+            | '>'
+            | '%'
+            | ':'
+            | ';'
+            | '.'
+            | '?'
+            | '*'
+            | '+'
+            | '-'
+            | '/'
+            | '^'
+            | '&'
+            | '|'
+            | '~'
+            | '!'
+            | '='
+            | ','
+            | '\''
+            | '\t'
+            | '\v'
+            | '\f'
+            | ' '
+
+preprocessing_token: header_name
+                   | IMPORT
+                   | MODULE
+                   | EXPORT
+                   | identifier
                    | pp_number
                    | character_constant
                    | string_literal
-                   | punctuator
-                   | non_white_space
+                   // | preprocessing_op_or_punc Honestly, this is kind of a mess to have in the preprocessor too.
+                   // | each non-whitespace character that cannot be one of the above

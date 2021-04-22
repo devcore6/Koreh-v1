@@ -60,4 +60,14 @@
 "\\v" { return ESCAPE_VTAB; }
 "\\x" { return ESCAPE_X; }
 
+"u8" { return UTF8_PREFIX; }
+"\\u" { return UNIVERSAL_CHARACTER_ESCAPE; }
+"\\U" { return DOUBLE_UNIVERSAL_CHARACTER_ESCAPE; }
+
+"import" { return IMPORT; }
+"module" { return MODULE; }
+"export" { return EXPORT; }
+
+"##" { return DOUBLE_HASH; }
+
 . { return static_cast<yytokentype>(*yytext); }
