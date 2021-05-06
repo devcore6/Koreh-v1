@@ -4,6 +4,8 @@ local colors = require("colors")
 local coroutine = require("coroutine")
 local event = require("event")
 
+local drive = "/mnt/b97/data" -- Change this as you need
+
 local rs = component.redstone
 
 local address_bus_1 = sides.back
@@ -120,8 +122,6 @@ function poll_signals()
 		local address = get_address()
 		if memory[address] ~= nil then
 			rs.setBundledOutput(data_bus, bundled_io.bytes_to_bundle(memory[address], 0))
-			os.sleep(0.25)
-			rs.setBundledOutput(data_bus, bundled_io.bytes_to_bundle(0, 0))
 		else
 			rs.setBundledOutput(data_bus, bundled_io.bytes_to_bundle(0, 0))
 		end
@@ -132,18 +132,12 @@ function poll_signals()
 		if memory[address] ~= nil then
 			if memory[address + 1] ~= nil then
 				rs.setBundledOutput(data_bus, bundled_io.bytes_to_bundle(memory[address], memory[address + 1]))
-				os.sleep(0.25)
-				rs.setBundledOutput(data_bus, bundled_io.bytes_to_bundle(0, 0))
 			else
 				rs.setBundledOutput(data_bus, bundled_io.bytes_to_bundle(memory[address], 0))
-				os.sleep(0.25)
-				rs.setBundledOutput(data_bus, bundled_io.bytes_to_bundle(0, 0))
 			end
 		else
 			if memory[address + 1] ~= nil then
 				rs.setBundledOutput(data_bus, bundled_io.bytes_to_bundle(0, memory[address + 1]))
-				os.sleep(0.25)
-				rs.setBundledOutput(data_bus, bundled_io.bytes_to_bundle(0, 0))
 			else
 				rs.setBundledOutput(data_bus, bundled_io.bytes_to_bundle(0, 0))
 			end
@@ -160,14 +154,30 @@ function poll_signals()
 		memory[address] = bit32.band(bundled_io.to_int(rs.getBundledInput(data_bus)), 255)		 -- 0000 0000 1111 1111
 		memory[address + 1] = bit32.band(bundled_io.to_int(rs.getBundledInput(data_bus)), 65280) -- 1111 1111 0000 0000
 																								 -- Hope I didn't mess up the endianness
+	else
+
+		rs.setBundledOutput(data_bus, bundled_io.bytes_to_bundle(0, 0))
+		
 	end
 end
 
--- init graphics
+-- zero out graphics memory
 
 for i=2048,18047 do
 	memory[i] = 0
 end
+
+-- load bootloader into memory
+
+local file = io.open(drive, "r")
+if not file then
+	print("Could not open drive!")
+	return
+end
+for i=18048,18579 do
+	memory[i] = string.byte(file:read(1))
+end
+file:close()
 
 while true do
 
