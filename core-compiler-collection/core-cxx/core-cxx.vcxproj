@@ -147,10 +147,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="00-main.cpp" />
     <ClCompile Include="02-line-splicing.cpp" />
     <ClCompile Include="03-cleanup.cpp" />
     <ClCompile Include="04-preprocessor.cpp" />
-    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="01-character-mapping.hpp" />

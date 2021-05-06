@@ -18,13 +18,13 @@
     <ClCompile Include="02-line-splicing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="03-cleanup.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="04-preprocessor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="00-main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

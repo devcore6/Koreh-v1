@@ -74,9 +74,9 @@ group_opt:                                                              // Optio
          | group
 
 group_part: if_section                                                  // A group part is either an if section (#if [#elif] [#else] #endif)
-/*          | control_line                                                // Or a control line (#include, #define, #undef, #line, #error, #pragma #\n)
+          | control_line                                                // Or a control line (#include, #define, #undef, #line, #error, #pragma #\n)
           | text_line                                                   // Or a text line
-          | '#' non_directive                                           // Or a # followed by a non directive*/
+          | '#' non_directive                                           // Or a # followed by a non directive
 
 if_section: if_group elif_groups_opt else_group_opt endif_line          // An #if section contains an #if group and an #endif line, and optional #endif groups and an optional #else group
 
