@@ -17,3 +17,7 @@ enum {
 
 	INT_KEYBOARD_DATA_READY         = 0x0D
 };
+
+enum {
+	NMI_NO_SUCH_COPROCESSOR			= 0x00
+};

@@ -14,3 +14,4 @@
 #include <register.h>
 #include <instruction.h>
 #include <interrupts.h>
+#include <flags.h>

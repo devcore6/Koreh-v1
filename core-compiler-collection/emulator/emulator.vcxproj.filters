@@ -36,6 +36,12 @@
     <ClInclude Include="..\include\interrupts.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\flags.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cpuid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\shared\register.cpp">

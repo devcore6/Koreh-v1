@@ -1,5 +1,6 @@
 #pragma once
 #include <shared.h>
+#include <cpuid.h>
 
 constexpr uint32_t version = (0 << 24) | (0 << 16) | (1 << 8) | 1; // release << 24 | major << 16 | minor << 8 | 1=alpha 2=beta
 
@@ -8,6 +9,8 @@ extern uint64_t frequency;
 extern uint8_t bits;
 extern uint64_t memorysize;
 extern uint8_t* memory;
+
+constexpr bool has_fpu = false;
 
 struct reg_t {
 	bool upper = false;
