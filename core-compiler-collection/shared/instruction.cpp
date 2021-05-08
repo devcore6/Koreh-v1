@@ -170,7 +170,7 @@ bool initinstructions() {
 	addinstruction("ret", 0b0100000000001111);
 	addinstruction("ret", 0b1110000000001111);
 	addinstruction("int", 0b0000000000010000, 2);
-	addinstruction("int", 0b0000000000010000, 3);
+	addinstruction("int", 0b0100000000010000, 3);
 	addinstruction("int", 0b1000000000010000, 3);
 	addinstruction("int", 0b0000000000010000, 1);
 	addinstruction("cli", 0b0000000000010001);

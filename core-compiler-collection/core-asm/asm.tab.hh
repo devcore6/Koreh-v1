@@ -38,8 +38,8 @@
 #ifndef YY_YY_ASM_TAB_HH_INCLUDED
 # define YY_YY_ASM_TAB_HH_INCLUDED
 /* Debug traces.  */
-#ifndef YYDEBUG
-# define YYDEBUG 1
+#ifdef YYDEBUG
+# undef YYDEBUG
 #endif
 #if YYDEBUG
 extern int yydebug;

@@ -38,7 +38,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="asm-main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="asm.cpp">

@@ -1,8 +1,6 @@
 %{ 
     #include <asm.h>
 
-    #define YYDEBUG 1
-
     extern "C" int yylex();
     extern "C" void yyerror(const char *s);
 

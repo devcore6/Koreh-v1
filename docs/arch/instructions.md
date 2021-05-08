@@ -170,7 +170,7 @@
 | ret   | 0100000000001111 |           | Returns from a subroutine by loading the program counter from the stack top - same as popl %epc                                  |
 | ret   | 1110000000001111 |           | Returns from a subroutine by loading the program counter from the stack top - same as popq %epc                                  |
 | int   | 0000000000010000 | %reg      | Sends an interrupt stored on an 8-bit register                                                                                   |
-| int   | 0000000000010000 | $adr      | Sends an interrupt stored on a 32-bit address                                                                                    |
+| int   | 0100000000010000 | $adr      | Sends an interrupt stored on a 32-bit address                                                                                    |
 | int   | 1000000000010000 | $adr      | Sends an interrupt stored on a 64-bit address                                                                                    |
 | int   | 0000000000010000 | val       | Sends an interrupt equivalent to an 8-bit value                                                                                  |
 | cli   | 0000000000010001 |           | Clears the interrupt flag                                                                                                        |

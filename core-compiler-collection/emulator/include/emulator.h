@@ -46,5 +46,7 @@ struct function_t {
 extern std::vector<core_t*> _cores;
 extern std::vector<function_t> functions;
 
-extern uint64_t readmemory(uint64_t address, uint8_t size);
-extern void writememory(uint64_t data, uint64_t address, uint8_t size);
+extern uint64_t readmemory(uint64_t address, uint8_t size, core_t* core);
+extern void writememory(uint64_t data, uint64_t address, uint8_t size, core_t *core);
+
+extern void interrupt(uint8_t intcode, uint64_t _rax, uint64_t _rbx, core_t* core);

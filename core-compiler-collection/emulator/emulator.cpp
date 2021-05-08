@@ -39,7 +39,7 @@ reg_t::~reg_t() {
 	if(owner) delete value;
 }
 
-void fault(uint8_t intcode, uint64_t _rax, uint64_t _rbx, core_t *core) {
+void interrupt(uint8_t intcode, uint64_t _rax, uint64_t _rbx, core_t *core) {
 	if(intcode != INT_DOUBLE_FAULT) {
 		if(bits == 32) {
 			writememory(core->regs[eax]->getvalue(), core->regs[esp]->getvalue() - 4, 4, core);
@@ -52,7 +52,7 @@ void fault(uint8_t intcode, uint64_t _rax, uint64_t _rbx, core_t *core) {
 			writememory(core->regs[rbx]->getvalue(), core->regs[rsp]->getvalue() - 8, 8, core);
 			core->regs[rsp]->setvalue(core->regs[rsp]->getvalue() - 8);
 		}
-		if(core->regs[rsp]->getvalue() < core->regs[rbp]->getvalue()) { fault(INT_DOUBLE_FAULT, _rax, _rbx, core); return; }
+		if(core->regs[rsp]->getvalue() < core->regs[rbp]->getvalue()) { interrupt(INT_DOUBLE_FAULT, _rax, _rbx, core); return; }
 	}
 	core->regs[rax]->setvalue(_rax);
 	core->regs[rbx]->setvalue(_rbx);
@@ -226,17 +226,17 @@ register_t findreg(uint8_t address) {
 
 uint64_t readmemory(uint64_t address, uint8_t size, core_t *core) {
 	uint64_t out = 0;
-	if(address + size > memorysize) { fault(INT_BOUNDS, address + size, 0, core); return 0;  }
+	if(address + size > memorysize) { interrupt(INT_BOUNDS, address + size, 0, core); return 0;  }
 	if(size > 8) return 0;
-	if(size == 8 && bits == 32) { fault(INT_WRONG_ARCH, address, 0, core); return 0; }
+	if(size == 8 && bits == 32) { interrupt(INT_WRONG_ARCH, address, 0, core); return 0; }
 	for(size_t i = 0; i < size; i++) out |= (uint64_t)(memory[address + i]) << (8 * i);
 	return out;
 }
 
 void writememory(uint64_t data, uint64_t address, uint8_t size, core_t* core) {
-	if(address + size > memorysize) { fault(INT_BOUNDS, address + size, 0, core); return;  }
+	if(address + size > memorysize) { interrupt(INT_BOUNDS, address + size, 0, core); return;  }
 	if(size > 8) return;
-	if(size == 8 && bits == 32) { fault(INT_WRONG_ARCH, address, 0, core); return; }
+	if(size == 8 && bits == 32) { interrupt(INT_WRONG_ARCH, address, 0, core); return; }
 	for(uint8_t i = 0; i < size; i++) memory[address + i] = (uint8_t)((data >> (8 * i)) & 0xFF);
 }
 
@@ -247,14 +247,14 @@ void __mov(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 	uint64_t value = 0;
 	uint8_t size = getsize(instruction);
 	switch(instruction.arg2) {
-		case 0: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
+		case 0: { interrupt(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 1: {
 			value = ridrval;
 			switch(size) {
 				case 0: { value &= 0x00000000000000FF; break; }
 				case 1: { value &= 0x000000000000FFFF; break; }
 				case 2: { value &= 0x00000000FFFFFFFF; break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 			}
 			break;
 		}
@@ -265,7 +265,7 @@ void __mov(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 				case 0: { value &= 0x00000000000000FF; break; }
 				case 1: { value &= 0x000000000000FFFF; break; }
 				case 2: { value &= 0x00000000FFFFFFFF; break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 			}
 			break;
 		}
@@ -274,7 +274,7 @@ void __mov(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 				case 0: { value = readmemory(ridrval, 1, core); break; }
 				case 1: { value = readmemory(ridrval, 2, core); break; }
 				case 2: { value = readmemory(ridrval, 4, core); break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; }
 						  else value = readmemory(ridrval, 8, core); break; }
 			}
 			break;
@@ -282,7 +282,7 @@ void __mov(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 	}
 	switch(instruction.arg1) {
 		case 0:
-		case 1: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
+		case 1: { interrupt(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 2: {
 			core->regs[findreg(getregister(rirval, true))]->setvalue(value);
 			break;
@@ -301,7 +301,7 @@ void __load(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t
 		case 2: { core->regs[findreg(getregister(rirval, true))]->setvalue(readmemory(core->regs[findreg(getregister(rirval, false))]->getvalue(), 4, core)); break; }
 		case 3:
 		{
-			if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; }
+			if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; }
 							 else core->regs[findreg(getregister(rirval, true))]->setvalue(readmemory(core->regs[findreg(getregister(rirval, false))]->getvalue(), 8, core)); break; }
 	}
 }
@@ -316,7 +316,7 @@ void __inc(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 	uint8_t size = getsize(instruction);
 	switch(instruction.arg1) {
 		case 0:
-		case 1: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
+		case 1: { interrupt(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 2: {
 			core->regs[findreg(getregister(rirval, true))]->setvalue(core->regs[findreg(getregister(rirval, true))]->getvalue() + 1);
 			break;
@@ -332,7 +332,7 @@ void __dec(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 	uint8_t size = getsize(instruction);
 	switch(instruction.arg1) {
 		case 0:
-		case 1: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
+		case 1: { interrupt(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 2: {
 			core->regs[findreg(getregister(rirval, true))]->setvalue(core->regs[findreg(getregister(rirval, true))]->getvalue() - 1);
 			break;
@@ -348,14 +348,14 @@ void __add(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 	uint64_t value = 0;
 	uint8_t size = getsize(instruction);
 	switch(instruction.arg2) {
-		case 0: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
+		case 0: { interrupt(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 1: {
 			value = ridrval;
 			switch(size) {
 				case 0: { value &= 0x00000000000000FF; break; }
 				case 1: { value &= 0x000000000000FFFF; break; }
 				case 2: { value &= 0x00000000FFFFFFFF; break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 			}
 			break;
 		}
@@ -366,7 +366,7 @@ void __add(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 				case 0: { value &= 0x00000000000000FF; break; }
 				case 1: { value &= 0x000000000000FFFF; break; }
 				case 2: { value &= 0x00000000FFFFFFFF; break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 			}
 			break;
 		}
@@ -375,7 +375,7 @@ void __add(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 				case 0: { value = readmemory(ridrval, 1, core); break; }
 				case 1: { value = readmemory(ridrval, 2, core); break; }
 				case 2: { value = readmemory(ridrval, 4, core); break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; }
 						  else value = readmemory(ridrval, 8, core); break; }
 			}
 			break;
@@ -383,7 +383,7 @@ void __add(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 	}
 	switch(instruction.arg1) {
 		case 0:
-		case 1: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
+		case 1: { interrupt(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 2: {
 			core->regs[findreg(getregister(rirval, true))]->setvalue(core->regs[findreg(getregister(rirval, true))]->getvalue() + value);
 			break;
@@ -399,14 +399,14 @@ void __sub(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 	uint64_t value = 0;
 	uint8_t size = getsize(instruction);
 	switch(instruction.arg2) {
-		case 0: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
+		case 0: { interrupt(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 1: {
 			value = ridrval;
 			switch(size) {
 				case 0: { value &= 0x00000000000000FF; break; }
 				case 1: { value &= 0x000000000000FFFF; break; }
 				case 2: { value &= 0x00000000FFFFFFFF; break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 			}
 			break;
 		}
@@ -417,7 +417,7 @@ void __sub(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 				case 0: { value &= 0x00000000000000FF; break; }
 				case 1: { value &= 0x000000000000FFFF; break; }
 				case 2: { value &= 0x00000000FFFFFFFF; break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 			}
 			break;
 		}
@@ -426,7 +426,7 @@ void __sub(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 				case 0: { value = readmemory(ridrval, 1, core); break; }
 				case 1: { value = readmemory(ridrval, 2, core); break; }
 				case 2: { value = readmemory(ridrval, 4, core); break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; }
 						  else value = readmemory(ridrval, 8, core); break; }
 			}
 			break;
@@ -434,7 +434,7 @@ void __sub(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 	}
 	switch(instruction.arg1) {
 		case 0:
-		case 1: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
+		case 1: { interrupt(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 2: {
 			core->regs[findreg(getregister(rirval, true))]->setvalue(core->regs[findreg(getregister(rirval, true))]->getvalue() - value);
 			break;
@@ -454,7 +454,7 @@ void __mul(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 		case 0: { value1 &= 0x00000000000000FF; value2 &= 0x00000000000000FF; break; }
 		case 1: { value1 &= 0x000000000000FFFF; value2 &= 0x000000000000FFFF; break; }
 		case 2: { value1 &= 0x00000000FFFFFFFF; value2 &= 0x00000000FFFFFFFF; break; }
-		case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+		case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 	}
 	if(size < 3) {
 		uint64_t result = value1 * value2;
@@ -500,7 +500,7 @@ void __imul(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t
 		case 0: { value1 &= 0x00000000000000FF; value2 &= 0x00000000000000FF; break; }
 		case 1: { value1 &= 0x000000000000FFFF; value2 &= 0x000000000000FFFF; break; }
 		case 2: { value1 &= 0x00000000FFFFFFFF; value2 &= 0x00000000FFFFFFFF; break; }
-		case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+		case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 	}
 	if(size < 3) {
 		switch(size) {
@@ -548,7 +548,7 @@ void __div(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 		case 0: { value1 &= 0x00000000000000FF; value2 &= 0x00000000000000FF; break; }
 		case 1: { value1 &= 0x000000000000FFFF; value2 &= 0x000000000000FFFF; break; }
 		case 2: { value1 &= 0x00000000FFFFFFFF; value2 &= 0x00000000FFFFFFFF; break; }
-		case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+		case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 	}
 	uint64_t result = value1 / value2;
 	uint64_t rest = value1 % value2;
@@ -584,7 +584,7 @@ void __idiv(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t
 		case 0: { value1 &= 0x00000000000000FF; value2 &= 0x00000000000000FF; break; }
 		case 1: { value1 &= 0x000000000000FFFF; value2 &= 0x000000000000FFFF; break; }
 		case 2: { value1 &= 0x00000000FFFFFFFF; value2 &= 0x00000000FFFFFFFF; break; }
-		case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+		case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 	}
 	switch(size) {
 		case 0: {
@@ -622,14 +622,14 @@ void __push(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t
 	uint64_t value = 0;
 	uint8_t size = getsize(instruction);
 	switch(instruction.arg1) {
-		case 0: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
+		case 0: { interrupt(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 1: {
 			value = ridrval;
 			switch(size) {
 				case 0: { value &= 0x00000000000000FF; break; }
 				case 1: { value &= 0x000000000000FFFF; break; }
 				case 2: { value &= 0x00000000FFFFFFFF; break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 			}
 			break;
 		}
@@ -640,7 +640,7 @@ void __push(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t
 				case 0: { value &= 0x00000000000000FF; break; }
 				case 1: { value &= 0x000000000000FFFF; break; }
 				case 2: { value &= 0x00000000FFFFFFFF; break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 			}
 			break;
 		}
@@ -649,7 +649,7 @@ void __push(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t
 				case 0: { value = readmemory(ridrval, 1, core); break; }
 				case 1: { value = readmemory(ridrval, 2, core); break; }
 				case 2: { value = readmemory(ridrval, 4, core); break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; }
 						  else value = readmemory(ridrval, 8, core); break; }
 			}
 			break;
@@ -677,7 +677,7 @@ void __push(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t
 			break;
 		}
 	}
-	if(core->regs[rsp]->getvalue() < core->regs[rbp]->getvalue()) fault(INT_STACK_FAULT, rirval, ridrval, core);
+	if(core->regs[rsp]->getvalue() < core->regs[rbp]->getvalue()) interrupt(INT_STACK_FAULT, rirval, ridrval, core);
 }
 
 void __pop(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t* core) {
@@ -698,7 +698,7 @@ void __pop(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 			break;
 		}
 		case 3: {
-			if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; }
+			if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; }
 			core->regs[findreg(getregister(rirval, true))]->setvalue(readmemory(core->regs[rsp]->getvalue(), 8, core));
 			core->regs[rsp]->setvalue(core->regs[rsp]->getvalue() + 8);
 			break;
@@ -708,12 +708,12 @@ void __pop(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 
 void __call(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t* core) {
 	if(getsize(instruction) == 2) {
-		if(bits == 64) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; }
+		if(bits == 64) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; }
 		writememory(core->regs[rpc]->getvalue(), core->regs[esp]->getvalue() - 4, 4, core);
 		core->regs[rsp]->setvalue(core->regs[rsp]->getvalue() - 4);
 		core->regs[rpc]->setvalue(ridrval & 0x00000000FFFFFFFF);
 	} else if(getsize(instruction) == 3) {
-		if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; }
+		if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; }
 		writememory(core->regs[rpc]->getvalue(), core->regs[rsp]->getvalue() - 8, 8, core);
 		core->regs[rsp]->setvalue(core->regs[rsp]->getvalue() - 8);
 		core->regs[rpc]->setvalue(ridrval);
@@ -722,13 +722,32 @@ void __call(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t
 
 void __return(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t* core) {
 	if(getsize(instruction) == 2) {
-		if(bits == 64) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; }
+		if(bits == 64) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; }
 		core->regs[rpc]->setvalue(readmemory(core->regs[rsp]->getvalue(), 4, core));
 		core->regs[rsp]->setvalue(core->regs[rsp]->getvalue() + 4);
 	} else if(getsize(instruction) == 3) {
-		if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; }
+		if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; }
 		core->regs[rpc]->setvalue(readmemory(core->regs[rsp]->getvalue(), 8, core));
 		core->regs[rsp]->setvalue(core->regs[rsp]->getvalue() + 8);
+	}
+}
+
+void __int(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t* core) {
+	uint8_t size = getsize(instruction);
+	switch(size) {
+		case 0: {
+			if(instruction.arg1 == 1) throw (uint8_t)(ridrval & 0x00000000000000FF);
+			if(instruction.arg1 == 2) throw (uint8_t)(core->regs[findreg(getregister(rirval, true))]->getvalue());
+			break;
+		}
+		case 3: {
+			if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; }
+			[[fallthrough]];
+		}
+		case 2: {
+			throw memory[ridrval];
+			break;
+		}
 	}
 }
 
@@ -744,14 +763,14 @@ void __or(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t* 
 	uint64_t value = 0;
 	uint8_t size = getsize(instruction);
 	switch(instruction.arg2) {
-		case 0: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
+		case 0: { interrupt(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 1: {
 			value = ridrval;
 			switch(size) {
 				case 0: { value &= 0x00000000000000FF; break; }
 				case 1: { value &= 0x000000000000FFFF; break; }
 				case 2: { value &= 0x00000000FFFFFFFF; break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 			}
 			break;
 		}
@@ -762,7 +781,7 @@ void __or(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t* 
 				case 0: { value &= 0x00000000000000FF; break; }
 				case 1: { value &= 0x000000000000FFFF; break; }
 				case 2: { value &= 0x00000000FFFFFFFF; break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 			}
 			break;
 		}
@@ -771,7 +790,7 @@ void __or(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t* 
 				case 0: { value = readmemory(ridrval, 1, core); break; }
 				case 1: { value = readmemory(ridrval, 2, core); break; }
 				case 2: { value = readmemory(ridrval, 4, core); break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; }
 						  else value = readmemory(ridrval, 8, core); break; }
 			}
 			break;
@@ -779,7 +798,7 @@ void __or(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t* 
 	}
 	switch(instruction.arg1) {
 		case 0:
-		case 1: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
+		case 1: { interrupt(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 2: {
 			core->regs[findreg(getregister(rirval, true))]->setvalue(core->regs[findreg(getregister(rirval, true))]->getvalue() | value);
 			break;
@@ -795,14 +814,14 @@ void __xor(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 	uint64_t value = 0;
 	uint8_t size = getsize(instruction);
 	switch(instruction.arg2) {
-		case 0: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
+		case 0: { interrupt(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 1: {
 			value = ridrval;
 			switch(size) {
 				case 0: { value &= 0x00000000000000FF; break; }
 				case 1: { value &= 0x000000000000FFFF; break; }
 				case 2: { value &= 0x00000000FFFFFFFF; break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 			}
 			break;
 		}
@@ -813,7 +832,7 @@ void __xor(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 				case 0: { value &= 0x00000000000000FF; break; }
 				case 1: { value &= 0x000000000000FFFF; break; }
 				case 2: { value &= 0x00000000FFFFFFFF; break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 			}
 			break;
 		}
@@ -822,7 +841,7 @@ void __xor(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 				case 0: { value = readmemory(ridrval, 1, core); break; }
 				case 1: { value = readmemory(ridrval, 2, core); break; }
 				case 2: { value = readmemory(ridrval, 4, core); break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; }
 						  else value = readmemory(ridrval, 8, core); break; }
 			}
 			break;
@@ -830,7 +849,7 @@ void __xor(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 	}
 	switch(instruction.arg1) {
 		case 0:
-		case 1: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
+		case 1: { interrupt(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 2: {
 			core->regs[findreg(getregister(rirval, true))]->setvalue(core->regs[findreg(getregister(rirval, true))]->getvalue() ^ value);
 			break;
@@ -846,14 +865,14 @@ void __and(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 	uint64_t value = 0;
 	uint8_t size = getsize(instruction);
 	switch(instruction.arg2) {
-		case 0: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
+		case 0: { interrupt(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 1: {
 			value = ridrval;
 			switch(size) {
 				case 0: { value &= 0x00000000000000FF; break; }
 				case 1: { value &= 0x000000000000FFFF; break; }
 				case 2: { value &= 0x00000000FFFFFFFF; break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 			}
 			break;
 		}
@@ -864,7 +883,7 @@ void __and(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 				case 0: { value &= 0x00000000000000FF; break; }
 				case 1: { value &= 0x000000000000FFFF; break; }
 				case 2: { value &= 0x00000000FFFFFFFF; break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 			}
 			break;
 		}
@@ -873,7 +892,7 @@ void __and(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 				case 0: { value = readmemory(ridrval, 1, core); break; }
 				case 1: { value = readmemory(ridrval, 2, core); break; }
 				case 2: { value = readmemory(ridrval, 4, core); break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; }
 						  else value = readmemory(ridrval, 8, core); break; }
 			}
 			break;
@@ -881,7 +900,7 @@ void __and(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 	}
 	switch(instruction.arg1) {
 		case 0:
-		case 1: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
+		case 1: { interrupt(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 2: {
 			core->regs[findreg(getregister(rirval, true))]->setvalue(core->regs[findreg(getregister(rirval, true))]->getvalue() & value);
 			break;
@@ -897,14 +916,14 @@ void __nand(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t
 	uint64_t value = 0;
 	uint8_t size = getsize(instruction);
 	switch(instruction.arg2) {
-		case 0: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
+		case 0: { interrupt(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 1: {
 			value = ridrval;
 			switch(size) {
 				case 0: { value &= 0x00000000000000FF; break; }
 				case 1: { value &= 0x000000000000FFFF; break; }
 				case 2: { value &= 0x00000000FFFFFFFF; break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 			}
 			break;
 		}
@@ -915,7 +934,7 @@ void __nand(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t
 				case 0: { value &= 0x00000000000000FF; break; }
 				case 1: { value &= 0x000000000000FFFF; break; }
 				case 2: { value &= 0x00000000FFFFFFFF; break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 			}
 			break;
 		}
@@ -924,7 +943,7 @@ void __nand(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t
 				case 0: { value = readmemory(ridrval, 1, core); break; }
 				case 1: { value = readmemory(ridrval, 2, core); break; }
 				case 2: { value = readmemory(ridrval, 4, core); break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; }
 						  else value = readmemory(ridrval, 8, core); break; }
 			}
 			break;
@@ -932,7 +951,7 @@ void __nand(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t
 	}
 	switch(instruction.arg1) {
 		case 0:
-		case 1: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
+		case 1: { interrupt(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 2: {
 			core->regs[findreg(getregister(rirval, true))]->setvalue(~(core->regs[findreg(getregister(rirval, true))]->getvalue() & value));
 			break;
@@ -948,14 +967,14 @@ void __nor(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 	uint64_t value = 0;
 	uint8_t size = getsize(instruction);
 	switch(instruction.arg2) {
-		case 0: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
+		case 0: { interrupt(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 1: {
 			value = ridrval;
 			switch(size) {
 				case 0: { value &= 0x00000000000000FF; break; }
 				case 1: { value &= 0x000000000000FFFF; break; }
 				case 2: { value &= 0x00000000FFFFFFFF; break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 			}
 			break;
 		}
@@ -966,7 +985,7 @@ void __nor(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 				case 0: { value &= 0x00000000000000FF; break; }
 				case 1: { value &= 0x000000000000FFFF; break; }
 				case 2: { value &= 0x00000000FFFFFFFF; break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 			}
 			break;
 		}
@@ -975,7 +994,7 @@ void __nor(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 				case 0: { value = readmemory(ridrval, 1, core); break; }
 				case 1: { value = readmemory(ridrval, 2, core); break; }
 				case 2: { value = readmemory(ridrval, 4, core); break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; }
 						  else value = readmemory(ridrval, 8, core); break; }
 			}
 			break;
@@ -983,7 +1002,7 @@ void __nor(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 	}
 	switch(instruction.arg1) {
 		case 0:
-		case 1: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
+		case 1: { interrupt(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 2: {
 			core->regs[findreg(getregister(rirval, true))]->setvalue(~(core->regs[findreg(getregister(rirval, true))]->getvalue() | value));
 			break;
@@ -999,14 +1018,14 @@ void __xnor(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t
 	uint64_t value = 0;
 	uint8_t size = getsize(instruction);
 	switch(instruction.arg2) {
-		case 0: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
+		case 0: { interrupt(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 1: {
 			value = ridrval;
 			switch(size) {
 				case 0: { value &= 0x00000000000000FF; break; }
 				case 1: { value &= 0x000000000000FFFF; break; }
 				case 2: { value &= 0x00000000FFFFFFFF; break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 			}
 			break;
 		}
@@ -1017,7 +1036,7 @@ void __xnor(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t
 				case 0: { value &= 0x00000000000000FF; break; }
 				case 1: { value &= 0x000000000000FFFF; break; }
 				case 2: { value &= 0x00000000FFFFFFFF; break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 			}
 			break;
 		}
@@ -1026,7 +1045,7 @@ void __xnor(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t
 				case 0: { value = readmemory(ridrval, 1, core); break; }
 				case 1: { value = readmemory(ridrval, 2, core); break; }
 				case 2: { value = readmemory(ridrval, 4, core); break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; }
 						  else value = readmemory(ridrval, 8, core); break; }
 			}
 			break;
@@ -1034,7 +1053,7 @@ void __xnor(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t
 	}
 	switch(instruction.arg1) {
 		case 0:
-		case 1: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
+		case 1: { interrupt(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 2: {
 			core->regs[findreg(getregister(rirval, true))]->setvalue(~(core->regs[findreg(getregister(rirval, true))]->getvalue() ^ value));
 			break;
@@ -1050,7 +1069,7 @@ void __not(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 	uint8_t size = getsize(instruction);
 	switch(instruction.arg1) {
 		case 0:
-		case 1: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
+		case 1: { interrupt(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 2: {
 			core->regs[findreg(getregister(rirval, true))]->setvalue(~core->regs[findreg(getregister(rirval, true))]->getvalue());
 			break;
@@ -1066,14 +1085,14 @@ void __shl(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 	uint64_t value = 0;
 	uint8_t size = getsize(instruction);
 	switch(instruction.arg2) {
-		case 0: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
+		case 0: { interrupt(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 1: {
 			value = ridrval;
 			switch(size) {
 				case 0: { value &= 0x00000000000000FF; break; }
 				case 1: { value &= 0x000000000000FFFF; break; }
 				case 2: { value &= 0x00000000FFFFFFFF; break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 			}
 			break;
 		}
@@ -1084,7 +1103,7 @@ void __shl(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 				case 0: { value &= 0x00000000000000FF; break; }
 				case 1: { value &= 0x000000000000FFFF; break; }
 				case 2: { value &= 0x00000000FFFFFFFF; break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 			}
 			break;
 		}
@@ -1093,7 +1112,7 @@ void __shl(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 				case 0: { value = readmemory(ridrval, 1, core); break; }
 				case 1: { value = readmemory(ridrval, 2, core); break; }
 				case 2: { value = readmemory(ridrval, 4, core); break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; }
 						  else value = readmemory(ridrval, 8, core); break; }
 			}
 			break;
@@ -1101,7 +1120,7 @@ void __shl(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 	}
 	switch(instruction.arg1) {
 		case 0:
-		case 1: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
+		case 1: { interrupt(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 2: {
 			core->regs[findreg(getregister(rirval, true))]->setvalue(core->regs[findreg(getregister(rirval, true))]->getvalue() << value);
 			break;
@@ -1117,14 +1136,14 @@ void __shr(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 	uint64_t value = 0;
 	uint8_t size = getsize(instruction);
 	switch(instruction.arg2) {
-		case 0: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
+		case 0: { interrupt(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 1: {
 			value = ridrval;
 			switch(size) {
 				case 0: { value &= 0x00000000000000FF; break; }
 				case 1: { value &= 0x000000000000FFFF; break; }
 				case 2: { value &= 0x00000000FFFFFFFF; break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 			}
 			break;
 		}
@@ -1135,7 +1154,7 @@ void __shr(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 				case 0: { value &= 0x00000000000000FF; break; }
 				case 1: { value &= 0x000000000000FFFF; break; }
 				case 2: { value &= 0x00000000FFFFFFFF; break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 			}
 			break;
 		}
@@ -1144,7 +1163,7 @@ void __shr(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 				case 0: { value = readmemory(ridrval, 1, core); break; }
 				case 1: { value = readmemory(ridrval, 2, core); break; }
 				case 2: { value = readmemory(ridrval, 4, core); break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; }
 						  else value = readmemory(ridrval, 8, core); break; }
 			}
 			break;
@@ -1152,7 +1171,7 @@ void __shr(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 	}
 	switch(instruction.arg1) {
 		case 0:
-		case 1: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
+		case 1: { interrupt(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 2: {
 			core->regs[findreg(getregister(rirval, true))]->setvalue(core->regs[findreg(getregister(rirval, true))]->getvalue() >> value);
 			break;
@@ -1200,14 +1219,14 @@ void __cmp(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 	uint64_t value = 0;
 	uint8_t size = getsize(instruction);
 	switch(instruction.arg2) {
-		case 0: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
+		case 0: { interrupt(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 1: {
 			value = ridrval;
 			switch(size) {
 				case 0: { value &= 0x00000000000000FF; break; }
 				case 1: { value &= 0x000000000000FFFF; break; }
 				case 2: { value &= 0x00000000FFFFFFFF; break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 			}
 			break;
 		}
@@ -1218,7 +1237,7 @@ void __cmp(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 				case 0: { value &= 0x00000000000000FF; break; }
 				case 1: { value &= 0x000000000000FFFF; break; }
 				case 2: { value &= 0x00000000FFFFFFFF; break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; } break; }
 			}
 			break;
 		}
@@ -1227,7 +1246,7 @@ void __cmp(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 				case 0: { value = readmemory(ridrval, 1, core); break; }
 				case 1: { value = readmemory(ridrval, 2, core); break; }
 				case 2: { value = readmemory(ridrval, 4, core); break; }
-				case 3: { if(bits == 32) { fault(INT_WRONG_ARCH, rirval, ridrval, core); return; }
+				case 3: { if(bits == 32) { interrupt(INT_WRONG_ARCH, rirval, ridrval, core); return; }
 						  else value = readmemory(ridrval, 8, core); break; }
 			}
 			break;
@@ -1235,7 +1254,7 @@ void __cmp(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 	}
 	switch(instruction.arg1) {
 		case 0:
-		case 1: { fault(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
+		case 1: { interrupt(INT_INVALID_OPCODE, rirval, ridrval, core); break; }
 		case 2: {
 			if(core->regs[findreg(getregister(rirval, true))]->getvalue() == value)
 				core->regs[cr0]->setvalue(core->regs[cr0]->getvalue() | equal_flag);
@@ -1283,12 +1302,12 @@ void __cpuid(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_
 }
 
 void __mcr(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t* core) {
-	if(ridrval > cores) { fault(INT_NMI, NMI_NO_SUCH_COPROCESSOR, ridrval, core); return; }
+	if(ridrval > cores) { interrupt(INT_NMI, NMI_NO_SUCH_COPROCESSOR, ridrval, core); return; }
 	_cores[ridrval]->regs[findreg(getregister(rirval, true))]->setvalue(core->regs[findreg(getregister(rirval, false))]->getvalue());
 }
 
 void __mrc(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t* core) {
-	if(ridrval > cores) { fault(INT_NMI, NMI_NO_SUCH_COPROCESSOR, ridrval, core); return; }
+	if(ridrval > cores) { interrupt(INT_NMI, NMI_NO_SUCH_COPROCESSOR, ridrval, core); return; }
 	core->regs[findreg(getregister(rirval, false))]->setvalue(_cores[ridrval]->regs[findreg(getregister(rirval, true))]->getvalue());
 }
 
@@ -1313,6 +1332,7 @@ bool initfunctions() {
 	for(size_t i = 0; i < 4; i++) { addfunction(&__pop, count); count++; }
 	for(size_t i = 0; i < 2; i++) { addfunction(&__call, count); count++; }
 	for(size_t i = 0; i < 2; i++) { addfunction(&__return, count); count++; }
+	for(size_t i = 0; i < 4; i++) { addfunction(&__int, count); count++; }
 	addfunction(&__cli, count); count++;
 	addfunction(&__sti, count); count++;
 	for(size_t i = 0; i < 25; i++) { addfunction(&__or, count); count++; }

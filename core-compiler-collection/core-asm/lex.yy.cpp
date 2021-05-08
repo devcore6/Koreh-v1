@@ -1,5 +1,5 @@
 
-#line 2 "lex.yy.c"
+#line 3 "lex.yy.c"
 
 #define  YY_INT_ALIGNED short int
 
@@ -472,9 +472,9 @@ char *yytext;
     extern size_t curline;
     extern "C" int yylex();
     #define YY_DECL extern "C" int yylex()
-#line 475 "lex.yy.c"
+#line 476 "lex.yy.c"
 #define YY_NO_UNISTD_H 1
-#line 477 "lex.yy.c"
+#line 478 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -694,7 +694,7 @@ YY_DECL
 #line 15 "asm.ll"
 
 
-#line 697 "lex.yy.c"
+#line 698 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -893,7 +893,7 @@ YY_RULE_SETUP
 #line 105 "asm.ll"
 ECHO;
 	YY_BREAK
-#line 896 "lex.yy.c"
+#line 897 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
