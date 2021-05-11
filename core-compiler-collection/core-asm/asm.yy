@@ -75,10 +75,7 @@ parameter           : INTVAL {
                         $$->second = (void*)$1;
                     }
 
-parametergroup      : {
-                        $$ = new std::vector<std::pair<uint8_t, void*>*>;
-                    }
-                    | parameter {
+parametergroup      : parameter {
                         $$ = new std::vector<std::pair<uint8_t, void*>*>;
                         $$->push_back($1);
                     }
@@ -87,7 +84,7 @@ parametergroup      : {
                         $$->push_back($1);
                     }
 
-instructiongroup    : STRING parametergroup ';' {
+instructiongroup    : STRING parametergroup ';' EOL {
                         std::vector<instruction_t> instructions = findall(validinstructions, *$1);
                         if(instructions.size() == 0) {
                             std::cerr << "line " << curline << ": " << "Error! Invalid instruction: " << *$1 << std::endl;
@@ -465,7 +462,7 @@ instructiongroup    : STRING parametergroup ';' {
                                         } // argc = 3
                                         case 0:
                                         default: {
-                                            for(size_t i = 0; i < 14; i++) binarydata.push_back(0);
+                                            for(size_t i = 0; i < 6; i++) binarydata.push_back(0);
                                             break;
                                         }
                                     }
@@ -479,8 +476,46 @@ instructiongroup    : STRING parametergroup ';' {
                         delete $2;
                         delete $1;
                     }
+                    | STRING ';' EOL {
+                        std::vector<instruction_t> instructions = findall(validinstructions, *$1);
+                        if(instructions.size() == 0) {
+                            std::cerr << "line " << curline << ": " << "Error! Invalid instruction: " << *$1 << std::endl;
+                            errors++;
+                        } else {
+                            size_t argc = 0;
+                            while(instructions.size() > 0) {
+                                argc = (instructions[0].arg1 > 0 ? 1 : 0) + (instructions[0].arg2 > 0 ? 1 : 0) + (instructions[0].arg3 > 0 ? 1 : 0);
+                                if(argc != 0) {
+                                    instructions.erase(instructions.begin());
+                                    continue;
+                                }
+                                break;
+                            }
+                            if(instructions.size() == 0) {
+                                std::cerr << "line " << curline << ": " << "Error! Invalid arguments for instruction: " << *$1 << std::endl;
+                                errors++;
+                            } else {
+                                instruction_t instruction = instructions[0]; // Just so I don't have to constantly type instructions[0]
+                                if(instruction.opcode & (1 << 15)) { // 16 byte instruction
+                                    if(mode == 32) {
+                                        std::cerr << "line " << curline << ": " << "Error! Invalid size for 32-bit mode for instruction: " << *$1 << std::endl;
+                                        errors++;
+                                    } else {
+                                        binarydata.push_back((unsigned char)((instruction.opcode & 0xFF00) >> 8));
+                                        binarydata.push_back((unsigned char)(instruction.opcode & 0x00FF));
+                                        for(size_t i = 0; i < 14; i++) binarydata.push_back(0);
+                                    }
+                                } else { // 8 byte instruction
+                                    binarydata.push_back((unsigned char)((instruction.opcode & 0xFF00) >> 8));
+                                    binarydata.push_back((unsigned char)(instruction.opcode & 0x00FF));
+                                    for(size_t i = 0; i < 6; i++) binarydata.push_back(0);
+                                }
+                            }
+                        }
+                        delete $1;
+                    }
 
-label               : STRING ':' {
+label               : STRING ':' EOL {
                         addlabel(*$1);
                         delete $1;
                     }

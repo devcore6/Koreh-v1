@@ -1,4 +1,4 @@
-/* A Bison parser, made by GNU Bison 3.7.4.  */
+/* A Bison parser, made by GNU Bison 3.5.1.  */
 
 /* Bison interface for Yacc-like parsers in C
 
@@ -31,46 +31,40 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-/* DO NOT RELY ON FEATURES THAT ARE NOT DOCUMENTED in the manual,
-   especially those whose name start with YY_ or yy_.  They are
-   private implementation details that can be changed or removed.  */
+/* Undocumented macros, especially those whose name start with YY_,
+   are private implementation details.  Do not rely on them.  */
 
 #ifndef YY_YY_ASM_TAB_HH_INCLUDED
 # define YY_YY_ASM_TAB_HH_INCLUDED
 /* Debug traces.  */
-#ifdef YYDEBUG
-# undef YYDEBUG
+#ifndef YYDEBUG
+# define YYDEBUG 1
 #endif
 #if YYDEBUG
 extern int yydebug;
 #endif
 
-/* Token kinds.  */
+/* Token type.  */
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
   enum yytokentype
   {
-    YYEMPTY = -2,
-    YYEOF = 0,                     /* "end of file"  */
-    YYerror = 256,                 /* error  */
-    YYUNDEF = 257,                 /* "invalid token"  */
-    EOL = 258,                     /* "end of line"  */
-    INTVAL = 259,                  /* "signed integer"  */
-    UINTVAL = 260,                 /* "unsigned integer"  */
-    FLOATVAL = 261,                /* "double"  */
-    INTVAR = 262,                  /* "signed integer address"  */
-    UINTVAR = 263,                 /* "unsigned integer address"  */
-    REGISTER = 264,                /* "register"  */
-    STRING = 265                   /* "string"  */
+    EOL = 258,
+    INTVAL = 259,
+    UINTVAL = 260,
+    FLOATVAL = 261,
+    INTVAR = 262,
+    UINTVAR = 263,
+    REGISTER = 264,
+    STRING = 265
   };
-  typedef enum yytokentype yytoken_kind_t;
 #endif
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 12 "asm.yy"
+#line 10 "asm.yy"
 
     int64_t                                     ival;
     uint64_t                                    uval;
@@ -79,7 +73,7 @@ union YYSTYPE
     std::pair<uint8_t, void*>*                  vptr;
     std::vector<std::pair<uint8_t, void*>*>*    vptrvec;
 
-#line 83 "asm.tab.hh"
+#line 77 "asm.tab.hh"
 
 };
 typedef union YYSTYPE YYSTYPE;

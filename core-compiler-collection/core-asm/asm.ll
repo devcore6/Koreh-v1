@@ -92,6 +92,11 @@
     return STRING;
 }
 
+"'"."'" {
+    yylval.ival = yytext[1];
+    return INTVAL;
+}
+
 [ \t\r]+ { }
 
 \n {

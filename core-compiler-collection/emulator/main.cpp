@@ -75,6 +75,19 @@ SDL_Window* window = nullptr;
 SDL_Renderer* renderer = nullptr;
 TTF_Font* font = nullptr;
 
+struct charData {
+	SDL_Surface* surface = NULL;
+	SDL_Texture* texture = NULL;
+	SDL_Rect rect;
+	uint8_t fg;
+	char C[2] = { 0, 0 };
+	char c;
+};
+std::vector<charData> charsData;
+
+constexpr uint8_t VGA_WIDTH = 160;
+constexpr uint8_t VGA_HEIGHT = 50;
+
 bool initgraphics() {
 	if(SDL_Init(SDL_INIT_VIDEO) < 0) {
 		std::cerr << "Could not init video: " << SDL_GetError() << std::endl;
@@ -141,19 +154,6 @@ SDL_Color Colors[16] = {
 	{ 255, 255, 255, 255 }
 };
 
-struct charData {
-	SDL_Surface* surface = NULL;
-	SDL_Texture* texture = NULL;
-	SDL_Rect rect;
-	uint8_t fg;
-	char C[2] = { 0, 0 };
-	char c;
-};
-std::vector<charData> charsData;
-
-constexpr uint8_t VGA_WIDTH = 160;
-constexpr uint8_t VGA_HEIGHT = 50;
-
 void genCharacter(uint16_t position, char c, uint8_t fg = VGA_COLOR_WHITE) {
 	if(!font) font = TTF_OpenFont("font.ttf", 32);
 	if(charsData[position].surface != NULL) SDL_FreeSurface(charsData[position].surface);
@@ -172,6 +172,7 @@ void genCharacter(uint16_t position, char c, uint8_t fg = VGA_COLOR_WHITE) {
 }
 
 void renderCharacter(uint16_t position, char c, uint8_t bg = VGA_COLOR_BLACK, uint8_t fg = VGA_COLOR_WHITE) {
+	if(position >= charsData.size()) return;
 	if(charsData[position].c != c || charsData[position].fg != fg) genCharacter(position, c, fg);
 	int y = position / VGA_WIDTH;
 	int x = position % VGA_WIDTH;
@@ -193,7 +194,7 @@ void graphicsloop() {
 			interrupt(INT_KEYBOARD_DATA_READY, (uint64_t)e.key.keysym.sym, 0, _cores[0]);
 		}
 	}
-	for(size_t i = 2048; i < 18048; i += 2) {
+	for(size_t i = 2048; i < 18047; i += 2) {
 		renderCharacter(i, memory[i], memory[i + 1] & 0x0F, (memory[i + 1] & 0xF0) >> 4);
 	}
 	SDL_RenderPresent(renderer);
