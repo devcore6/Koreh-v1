@@ -40,6 +40,14 @@ reg_t::~reg_t() {
 }
 
 void interrupt(uint8_t intcode, uint64_t _rax, uint64_t _rbx, core_t *core) {
+	if(intcode < INT_KEYBOARD_DATA_READY) core->interrupts++;
+	if(core->interrupts == 3) {
+		std::cerr << "Triple fault detected - shutting down\n";
+		for(auto c : _cores) {
+			c->promise.set_value();
+		}
+		exit(-5);
+	}
 	if(intcode != INT_DOUBLE_FAULT) {
 		if(bits == 32) {
 			writememory(core->regs[eax]->getvalue(), core->regs[esp]->getvalue() - 4, 4, core);

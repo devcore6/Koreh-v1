@@ -33,7 +33,8 @@ struct regs_t {
 };
 
 struct core_t {
-	uint64_t id;
+	uint64_t id = 0;
+	uint8_t interrupts = 0;
 	regs_t regs;
 	std::promise<void> promise;
 };

@@ -476,7 +476,7 @@ instructiongroup    : STRING parametergroup ';' EOL {
                         delete $2;
                         delete $1;
                     }
-                    | STRING ';' EOL {
+                    /*| STRING ';' EOL {
                         std::vector<instruction_t> instructions = findall(validinstructions, *$1);
                         if(instructions.size() == 0) {
                             std::cerr << "line " << curline << ": " << "Error! Invalid instruction: " << *$1 << std::endl;
@@ -513,7 +513,7 @@ instructiongroup    : STRING parametergroup ';' EOL {
                             }
                         }
                         delete $1;
-                    }
+                    }*/
 
 label               : STRING ':' EOL {
                         addlabel(*$1);

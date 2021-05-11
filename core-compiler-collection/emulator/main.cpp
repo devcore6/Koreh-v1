@@ -41,14 +41,42 @@ void makedriveimage(char* const path, uint64_t size) {
 
 }
 
-void corehandler(core_t* core) {
-	try {
+uint8_t getsize(uint16_t opcode) {
+	return (uint8_t)((opcode >> 13) & 3);
+}
 
+void corehandler(core_t* core) {
+	core->interrupts = 0;
+	try {
+		uint16_t opcode = readmemory(core->regs[rpc]->getvalue(), 2, core);
+		if(opcode == 0) return;
+		uint8_t size = getsize(opcode);
+		if(size == 3) {
+			core->regs[rir]->setvalue(readmemory(core->regs[rpc]->getvalue(), 8, core));
+			core->regs[ridr]->setvalue(readmemory(core->regs[rpc]->getvalue() + 8, 8, core));
+			core->regs[rpc]->setvalue(core->regs[rpc]->getvalue() + 16);
+		} else {
+			core->regs[rir]->setvalue(readmemory(core->regs[rpc]->getvalue(), 4, core));
+			core->regs[ridr]->setvalue(readmemory(core->regs[rpc]->getvalue() + 4, 4, core));
+			core->regs[rpc]->setvalue(core->regs[rpc]->getvalue() + 8);
+		}
+		function_t* func = nullptr;
+		instruction_t* ints = nullptr;
+		for(size_t i = 0; i < validinstructions.size(); i++) {
+			if(validinstructions[i].opcode == opcode) {
+				ints = &validinstructions[i];
+				func = &functions[i];
+				break;
+			}
+		}
+		if(!func || !ints) {
+			interrupt(INT_INVALID_OPCODE, core->regs[rir]->getvalue(), core->regs[ridr]->getvalue(), core);
+		} else func->function(*ints, core->regs[rir]->getvalue(), core->regs[ridr]->getvalue(), core);
 	} catch(uint8_t f) {
 		if(f < INT_KEYBOARD_DATA_READY) {
 			/* todo: fault handling */
 		} else {
-			/* todo: intewrrupt handling */
+			/* todo: interrupt handling */
 		}
 	}
 }
@@ -338,15 +366,6 @@ int main(int argc, char* const argv[]) {
 
 	std::vector<std::thread*> threads;
 
-	for(uint64_t i = 0; i < cores; i++) {
-		_cores.push_back(new core_t);
-		_cores[i]->id = _cores.size() - 1;
-		if(i == 0) {
-			_cores[0]->regs[rpc]->setvalue(18048);
-		}
-		threads.push_back(new std::thread(corehandlercall, _cores[i], _cores[i]->promise.get_future()));
-	}
-
 	if(driveimage != "") {
 		drive.open(driveimage, std::ios::in | std::ios::out | std::ios::binary);
 		if(!drive) {
@@ -363,6 +382,15 @@ int main(int argc, char* const argv[]) {
 		}
 		binary.read((char*)memory + 18048, memorysize - 18048);
 		binary.close();
+	}
+
+	for(uint64_t i = 0; i < cores; i++) {
+		_cores.push_back(new core_t);
+		_cores[i]->id = _cores.size() - 1;
+		if(i == 0) {
+			_cores[0]->regs[rpc]->setvalue(18048);
+		}
+		threads.push_back(new std::thread(corehandlercall, _cores[i], _cores[i]->promise.get_future()));
 	}
 
 	if(!initgraphics()) {

@@ -473,9 +473,9 @@ union yyalloc
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  6
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  17
+#define YYNRULES  16
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  24
+#define YYNSTATES  22
 
 #define YYUNDEFTOK  2
 #define YYMAXUTOK   265
@@ -524,7 +524,7 @@ static const yytype_int8 yytranslate[] =
 static const yytype_int16 yyrline[] =
 {
        0,    37,    37,    43,    49,    55,    61,    67,    72,    78,
-      82,    87,   479,   518,   523,   524,   525,   526
+      82,    87,   518,   523,   524,   525,   526
 };
 #endif
 
@@ -551,7 +551,7 @@ static const yytype_int16 yytoknum[] =
 };
 # endif
 
-#define YYPACT_NINF (-14)
+#define YYPACT_NINF (-13)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
@@ -565,9 +565,9 @@ static const yytype_int16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-     -14,     0,   -14,   -14,     7,   -14,   -14,   -14,   -14,   -14,
-     -14,   -14,   -14,   -14,    -2,    -1,    -7,    -6,   -14,   -14,
-      17,     2,   -14,   -14
+     -13,     0,   -13,   -13,     7,   -13,   -13,   -13,   -13,   -13,
+     -13,   -13,   -13,   -13,    -2,    -9,    -8,   -13,    17,     2,
+     -13,   -13
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -575,21 +575,21 @@ static const yytype_int8 yypact[] =
      means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-      14,     0,     1,    15,     0,    17,    16,     2,     3,     4,
-       5,     6,     7,     8,     0,     0,     9,     0,    12,    13,
-       0,     0,    10,    11
+      13,     0,     1,    14,     0,    16,    15,     2,     3,     4,
+       5,     6,     7,     8,     0,     9,     0,    12,     0,     0,
+      10,    11
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -14,   -14,   -13,   -14,   -14,   -14
+     -13,   -13,   -12,   -13,   -13,   -13
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,    16,    17,     5,     6,     1
+      -1,    15,    16,     5,     6,     1
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -597,15 +597,15 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-       2,    18,    19,     3,    20,    23,    21,    22,     0,     0,
-       4,     7,     8,     9,    10,    11,    12,    13,     0,    14,
-      15,     7,     8,     9,    10,    11,    12,    13
+       2,    17,    18,     3,    19,    21,    20,     0,     0,     0,
+       4,     7,     8,     9,    10,    11,    12,    13,     0,     0,
+      14,     7,     8,     9,    10,    11,    12,    13
 };
 
 static const yytype_int8 yycheck[] =
 {
-       0,     3,     3,     3,    11,     3,    12,    20,    -1,    -1,
-      10,     4,     5,     6,     7,     8,     9,    10,    -1,    12,
+       0,     3,    11,     3,    12,     3,    18,    -1,    -1,    -1,
+      10,     4,     5,     6,     7,     8,     9,    10,    -1,    -1,
       13,     4,     5,     6,     7,     8,     9,    10
 };
 
@@ -614,22 +614,22 @@ static const yytype_int8 yycheck[] =
 static const yytype_int8 yystos[] =
 {
        0,    19,     0,     3,    10,    17,    18,     4,     5,     6,
-       7,     8,     9,    10,    12,    13,    15,    16,     3,     3,
-      11,    12,    16,     3
+       7,     8,     9,    10,    13,    15,    16,     3,    11,    12,
+      16,     3
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_int8 yyr1[] =
 {
        0,    14,    15,    15,    15,    15,    15,    15,    15,    16,
-      16,    17,    17,    18,    19,    19,    19,    19
+      16,    17,    18,    19,    19,    19,    19
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_int8 yyr2[] =
 {
        0,     2,     1,     1,     1,     1,     1,     1,     1,     1,
-       3,     4,     3,     3,     0,     2,     2,     2
+       3,     4,     3,     0,     2,     2,     2
 };
 
 
@@ -1815,59 +1815,16 @@ yyreduce:
     break;
 
   case 12:
-#line 479 "asm.yy"
-                                     {
-                        std::vector<instruction_t> instructions = findall(validinstructions, *(yyvsp[-2].sval));
-                        if(instructions.size() == 0) {
-                            std::cerr << "line " << curline << ": " << "Error! Invalid instruction: " << *(yyvsp[-2].sval) << std::endl;
-                            errors++;
-                        } else {
-                            size_t argc = 0;
-                            while(instructions.size() > 0) {
-                                argc = (instructions[0].arg1 > 0 ? 1 : 0) + (instructions[0].arg2 > 0 ? 1 : 0) + (instructions[0].arg3 > 0 ? 1 : 0);
-                                if(argc != 0) {
-                                    instructions.erase(instructions.begin());
-                                    continue;
-                                }
-                                break;
-                            }
-                            if(instructions.size() == 0) {
-                                std::cerr << "line " << curline << ": " << "Error! Invalid arguments for instruction: " << *(yyvsp[-2].sval) << std::endl;
-                                errors++;
-                            } else {
-                                instruction_t instruction = instructions[0]; // Just so I don't have to constantly type instructions[0]
-                                if(instruction.opcode & (1 << 15)) { // 16 byte instruction
-                                    if(mode == 32) {
-                                        std::cerr << "line " << curline << ": " << "Error! Invalid size for 32-bit mode for instruction: " << *(yyvsp[-2].sval) << std::endl;
-                                        errors++;
-                                    } else {
-                                        binarydata.push_back((unsigned char)((instruction.opcode & 0xFF00) >> 8));
-                                        binarydata.push_back((unsigned char)(instruction.opcode & 0x00FF));
-                                        for(size_t i = 0; i < 14; i++) binarydata.push_back(0);
-                                    }
-                                } else { // 8 byte instruction
-                                    binarydata.push_back((unsigned char)((instruction.opcode & 0xFF00) >> 8));
-                                    binarydata.push_back((unsigned char)(instruction.opcode & 0x00FF));
-                                    for(size_t i = 0; i < 6; i++) binarydata.push_back(0);
-                                }
-                            }
-                        }
-                        delete (yyvsp[-2].sval);
-                    }
-#line 1858 "asm.tab.cc"
-    break;
-
-  case 13:
 #line 518 "asm.yy"
                                      {
                         addlabel(*(yyvsp[-2].sval));
                         delete (yyvsp[-2].sval);
                     }
-#line 1867 "asm.tab.cc"
+#line 1824 "asm.tab.cc"
     break;
 
 
-#line 1871 "asm.tab.cc"
+#line 1828 "asm.tab.cc"
 
       default: break;
     }
