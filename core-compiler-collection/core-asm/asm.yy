@@ -16,8 +16,6 @@
     std::vector<std::pair<uint8_t, void*>*>*    vptrvec;
 }
 
-%define parse.trace
-
 %start start
 
 %token              EOL                 "end of line"
@@ -86,12 +84,14 @@ parametergroup      : parameter {
 
 instructiongroup    : STRING parametergroup ';' EOL {
                         std::vector<instruction_t> instructions = findall(validinstructions, *$1);
+                        reverse($2);
                         if(instructions.size() == 0) {
                             std::cerr << "line " << curline << ": " << "Error! Invalid instruction: " << *$1 << std::endl;
                             errors++;
                         } else {
                             size_t argc = 0;
                             while(instructions.size() > 0) {
+                                bool passed = true;
                                 argc = (instructions[0].arg1 > 0 ? 1 : 0) + (instructions[0].arg2 > 0 ? 1 : 0) + (instructions[0].arg3 > 0 ? 1 : 0);
                                 if(argc != $2->size()) {
                                     instructions.erase(instructions.begin());
@@ -100,9 +100,10 @@ instructiongroup    : STRING parametergroup ';' EOL {
                                 std::vector<uint8_t> argt = getargt(instructions[0]);
                                 for(size_t i = 0; i < argc; i++) if(argt[i] != $2->at(i)->first) {
                                     instructions.erase(instructions.begin());
-                                    continue;
+                                    passed = false;
+                                    break;
                                 }
-                                break;
+                                if(passed) break;
                             }
                             if(instructions.size() == 0) {
                                 std::cerr << "line " << curline << ": " << "Error! Invalid arguments for instruction: " << *$1 << std::endl;
@@ -114,15 +115,15 @@ instructiongroup    : STRING parametergroup ';' EOL {
                                         std::cerr << "line " << curline << ": " << "Error! Invalid size for 32-bit mode for instruction: " << *$1 << std::endl;
                                         errors++;
                                     } else {
-                                        binarydata.push_back((unsigned char)((instruction.opcode & 0xFF00) >> 8));
-                                        binarydata.push_back((unsigned char)(instruction.opcode & 0x00FF));
+                                        add_to_binarydata((unsigned char)((instruction.opcode & 0xFF00) >> 8));
+                                        add_to_binarydata((unsigned char)(instruction.opcode & 0x00FF));
                                         switch(argc) {
                                             case 1: {
                                                 switch($2->at(0)->first) {
                                                     case 1: {
-                                                        for(size_t i = 0; i < 6; i++) binarydata.push_back(0);
+                                                        for(size_t i = 0; i < 6; i++) add_to_binarydata(0);
                                                         uint64_t *val = (uint64_t*)$2->at(0)->second;
-                                                        for(size_t i = 0; i < 8; i++) binarydata.push_back((unsigned char)((*val & ((uint64_t)0xFF << (8 * (7 - i)))) >> (8 * (7 - i))));
+                                                        for(size_t i = 0; i < 8; i++) add_to_binarydata((unsigned char)((*val & ((uint64_t)0xFF << (8 * (7 - i)))) >> (8 * (7 - i))));
                                                         break;
                                                     }
                                                     case 2: {
@@ -136,23 +137,23 @@ instructiongroup    : STRING parametergroup ';' EOL {
                                                                 std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *$1 << std::endl;
                                                                 errors++;
                                                             } else {
-                                                                binarydata.push_back(val->address);
-                                                                for(size_t i = 0; i < 13; i++) binarydata.push_back(0);
+                                                                add_to_binarydata(val->address);
+                                                                for(size_t i = 0; i < 13; i++) add_to_binarydata(0);
                                                             }
                                                         }
                                                         break;
                                                     }
                                                     case 3: {
-                                                        binarydata.push_back(0xFF);
-                                                        for(size_t i = 0; i < 5; i++) binarydata.push_back(0);
+                                                        add_to_binarydata(0xFF);
+                                                        for(size_t i = 0; i < 5; i++) add_to_binarydata(0);
                                                         uint64_t *val = (uint64_t*)$2->at(0)->second;
-                                                        for(size_t i = 0; i < 8; i++) binarydata.push_back((unsigned char)((*val & ((uint64_t)0xFF << (8 * (7 - i)))) >> (8 * (7 - i))));
+                                                        for(size_t i = 0; i < 8; i++) add_to_binarydata((unsigned char)((*val & ((uint64_t)0xFF << (8 * (7 - i)))) >> (8 * (7 - i))));
                                                         break;
                                                     }
                                                     case 4: {
-                                                        for(size_t i = 0; i < 6; i++) binarydata.push_back(0);
+                                                        for(size_t i = 0; i < 6; i++) add_to_binarydata(0);
                                                         schedulereplace(binarydata.size(), *(std::string*)$2->at(0)->second);
-                                                        for(size_t i = 0; i < 8; i++) binarydata.push_back(0);
+                                                        for(size_t i = 0; i < 8; i++) add_to_binarydata(0);
                                                         break;
                                                     }
                                                 }
@@ -172,14 +173,14 @@ instructiongroup    : STRING parametergroup ';' EOL {
                                                                 std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *$1 << std::endl;
                                                                 errors++;
                                                             } else {
-                                                                binarydata.push_back(reg->address);
+                                                                add_to_binarydata(reg->address);
                                                             }
                                                         }
                                                         switch($2->at(1)->first) {
                                                             case 1: {
-                                                                for(size_t i = 0; i < 5; i++) binarydata.push_back(0);
+                                                                for(size_t i = 0; i < 5; i++) add_to_binarydata(0);
                                                                 uint64_t *val = (uint64_t*)$2->at(1)->second;
-                                                                for(size_t i = 0; i < 8; i++) binarydata.push_back((unsigned char)((*val & ((uint64_t)0xFF << (8 * (7 - i)))) >> (8 * (7 - i))));
+                                                                for(size_t i = 0; i < 8; i++) add_to_binarydata((unsigned char)((*val & ((uint64_t)0xFF << (8 * (7 - i)))) >> (8 * (7 - i))));
                                                                 break;
                                                             }
                                                             case 2: {
@@ -193,17 +194,17 @@ instructiongroup    : STRING parametergroup ';' EOL {
                                                                         std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *$1 << std::endl;
                                                                         errors++;
                                                                     } else {
-                                                                        binarydata.push_back(reg->address);
-                                                                        for(size_t i = 0; i < 12; i++) binarydata.push_back(0);
+                                                                        add_to_binarydata(reg->address);
+                                                                        for(size_t i = 0; i < 12; i++) add_to_binarydata(0);
                                                                     }
                                                                 }
                                                                 break;
                                                             }
                                                             case 3: {
                                                                 uint64_t *val = (uint64_t*)$2->at(1)->second;
-                                                                binarydata.push_back(0xFF);
-                                                                for(size_t i = 0; i < 4; i++) binarydata.push_back(0);
-                                                                for(size_t i = 0; i < 8; i++) binarydata.push_back((unsigned char)((*val & ((uint64_t)0xFF << (8 * (7 - i)))) >> (8 * (7 - i))));
+                                                                add_to_binarydata(0xFF);
+                                                                for(size_t i = 0; i < 4; i++) add_to_binarydata(0);
+                                                                for(size_t i = 0; i < 8; i++) add_to_binarydata((unsigned char)((*val & ((uint64_t)0xFF << (8 * (7 - i)))) >> (8 * (7 - i))));
                                                                 break;
                                                             }
                                                             /* case 4 doesn't exist here */
@@ -211,16 +212,16 @@ instructiongroup    : STRING parametergroup ';' EOL {
                                                         break;
                                                     }
                                                     case 3: {
-                                                        binarydata.push_back(0xFF);
+                                                        add_to_binarydata(0xFF);
                                                         switch($2->at(1)->first) {
                                                             case 1: {
                                                                 if((instruction.opcode & (1 << 14)) && (instruction.opcode & (1 << 13))) {
                                                                     std::cerr << "line " << curline << ": " << "Error! Argument size mismatch for instruction: " << *$1 << std::endl;
                                                                     errors++;
                                                                 } else {
-                                                                    binarydata.push_back(0);
+                                                                    add_to_binarydata(0);
                                                                     uint64_t *val = (uint64_t*)$2->at(1)->second;
-                                                                    for(size_t i = 0; i < 4; i++) binarydata.push_back((unsigned char)((*val & ((uint64_t)0xFF << (4 * (3 - i)))) >> (4 * (3 - i))));
+                                                                    for(size_t i = 0; i < 4; i++) add_to_binarydata((unsigned char)((*val & ((uint64_t)0xFF << (4 * (3 - i)))) >> (4 * (3 - i))));
                                                                 }
                                                                 break;
                                                             }
@@ -235,7 +236,7 @@ instructiongroup    : STRING parametergroup ';' EOL {
                                                                         std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *$1 << std::endl;
                                                                         errors++;
                                                                     } else {
-                                                                        binarydata.push_back(reg->address);
+                                                                        add_to_binarydata(reg->address);
                                                                     }
                                                                 }
                                                             }
@@ -243,7 +244,7 @@ instructiongroup    : STRING parametergroup ';' EOL {
                                                             /* case 4 doesn't exist here */
                                                         }
                                                         uint64_t *val = (uint64_t*)$2->at(0)->second;
-                                                        for(size_t i = 0; i < 8; i++) binarydata.push_back((unsigned char)((*val & ((uint64_t)0xFF << (8 * (7 - i)))) >> (8 * (7 - i))));
+                                                        for(size_t i = 0; i < 8; i++) add_to_binarydata((unsigned char)((*val & ((uint64_t)0xFF << (8 * (7 - i)))) >> (8 * (7 - i))));
                                                         break;
                                                     }
                                                     /* case 4 doesn't exist here */
@@ -262,7 +263,7 @@ instructiongroup    : STRING parametergroup ';' EOL {
                                                         std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *$1 << std::endl;
                                                         errors++;
                                                     } else {
-                                                        binarydata.push_back(reg->address);
+                                                        add_to_binarydata(reg->address);
                                                     }
                                                 }
                                                 reg = (register_t*)$2->at(2)->second;
@@ -275,31 +276,31 @@ instructiongroup    : STRING parametergroup ';' EOL {
                                                         std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *$1 << std::endl;
                                                         errors++;
                                                     } else {
-                                                        binarydata.push_back(reg->address);
+                                                        add_to_binarydata(reg->address);
                                                     }
                                                 }
                                                 uint64_t *val = (uint64_t*)$2->at(0)->second;
-                                                for(size_t i = 0; i < 4; i++) binarydata.push_back(0);
-                                                for(size_t i = 0; i < 8; i++) binarydata.push_back((unsigned char)((*val & ((uint64_t)0xFF << (8 * (7 - i)))) >> (8 * (7 - i))));
+                                                for(size_t i = 0; i < 4; i++) add_to_binarydata(0);
+                                                for(size_t i = 0; i < 8; i++) add_to_binarydata((unsigned char)((*val & ((uint64_t)0xFF << (8 * (7 - i)))) >> (8 * (7 - i))));
                                                 break;
                                             } // argc = 3
                                             case 0:
                                             default: {
-                                                for(size_t i = 0; i < 14; i++) binarydata.push_back(0);
+                                                for(size_t i = 0; i < 14; i++) add_to_binarydata(0);
                                                 break;
                                             }
                                         }
                                     }
                                 } else { // 8 byte instruction
-                                    binarydata.push_back((unsigned char)((instruction.opcode & 0xFF00) >> 8));
-                                    binarydata.push_back((unsigned char)(instruction.opcode & 0x00FF));
+                                    add_to_binarydata((unsigned char)((instruction.opcode & 0xFF00) >> 8));
+                                    add_to_binarydata((unsigned char)(instruction.opcode & 0x00FF));
                                     switch(argc) {
                                         case 1: {
                                             switch($2->at(0)->first) {
                                                 case 1: {
-                                                    for(size_t i = 0; i < 2; i++) binarydata.push_back(0);
+                                                    for(size_t i = 0; i < 2; i++) add_to_binarydata(0);
                                                     uint64_t *val = (uint64_t*)$2->at(0)->second;
-                                                    for(size_t i = 0; i < 4; i++) binarydata.push_back((unsigned char)((*val & ((uint64_t)0xFF << (4 * (3 - i)))) >> (4 * (3 - i))));
+                                                    for(size_t i = 0; i < 4; i++) add_to_binarydata((unsigned char)((*val & ((uint64_t)0xFF << (4 * (3 - i)))) >> (4 * (3 - i))));
                                                     break;
                                                 }
                                                 case 2: {
@@ -313,23 +314,23 @@ instructiongroup    : STRING parametergroup ';' EOL {
                                                             std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *$1 << std::endl;
                                                             errors++;
                                                         } else {
-                                                            binarydata.push_back(reg->address);
-                                                            for(size_t i = 0; i < 5; i++) binarydata.push_back(0);
+                                                            add_to_binarydata(reg->address);
+                                                            for(size_t i = 0; i < 5; i++) add_to_binarydata(0);
                                                         }
                                                     }
                                                     break;
                                                 }
                                                 case 3: {
-                                                    binarydata.push_back(0xFF);
-                                                    binarydata.push_back(0);
+                                                    add_to_binarydata(0xFF);
+                                                    add_to_binarydata(0);
                                                     uint64_t *val = (uint64_t*)$2->at(0)->second;
-                                                    for(size_t i = 0; i < 4; i++) binarydata.push_back((unsigned char)((*val & ((uint64_t)0xFF << (4 * (3 - i)))) >> (4 * (3 - i))));
+                                                    for(size_t i = 0; i < 4; i++) add_to_binarydata((unsigned char)((*val & ((uint64_t)0xFF << (4 * (3 - i)))) >> (4 * (3 - i))));
                                                     break;
                                                 }
                                                 case 4: {
-                                                    for(size_t i = 0; i < 2; i++) binarydata.push_back(0);
+                                                    for(size_t i = 0; i < 2; i++) add_to_binarydata(0);
                                                     schedulereplace(binarydata.size(), *(std::string*)$2->at(0)->second);
-                                                    for(size_t i = 0; i < 4; i++) binarydata.push_back(0);
+                                                    for(size_t i = 0; i < 4; i++) add_to_binarydata(0);
                                                     break;
                                                 }
                                             }
@@ -349,14 +350,14 @@ instructiongroup    : STRING parametergroup ';' EOL {
                                                             std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *$1 << std::endl;
                                                             errors++;
                                                         } else {
-                                                            binarydata.push_back(reg->address);
+                                                            add_to_binarydata(reg->address);
                                                         }
                                                     }
                                                     switch($2->at(1)->first) {
                                                         case 1: {
-                                                            binarydata.push_back(0);
+                                                            add_to_binarydata(0);
                                                             uint64_t *val = (uint64_t*)$2->at(1)->second;
-                                                            for(size_t i = 0; i < 4; i++) binarydata.push_back((unsigned char)((*val & ((uint64_t)0xFF << (4 * (3 - i)))) >> (4 * (3 - i))));
+                                                            for(size_t i = 0; i < 4; i++) add_to_binarydata((unsigned char)((*val & ((uint64_t)0xFF << (4 * (3 - i)))) >> (4 * (3 - i))));
                                                             break;
                                                         }
                                                         case 2: {
@@ -370,16 +371,16 @@ instructiongroup    : STRING parametergroup ';' EOL {
                                                                     std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *$1 << std::endl;
                                                                     errors++;
                                                                 } else {
-                                                                    binarydata.push_back(reg->address);
-                                                                    for(size_t i = 0; i < 4; i++) binarydata.push_back(0);
+                                                                    add_to_binarydata(reg->address);
+                                                                    for(size_t i = 0; i < 4; i++) add_to_binarydata(0);
                                                                 }
                                                             }
                                                             break;
                                                         }
                                                         case 3: {
                                                             uint64_t* val = (uint64_t*)$2->at(1)->second;
-                                                            binarydata.push_back(0xFF);
-                                                            for(size_t i = 0; i < 4; i++) binarydata.push_back((unsigned char)((*val & ((uint64_t)0xFF << (4 * (3 - i)))) >> (4 * (3 - i))));
+                                                            add_to_binarydata(0xFF);
+                                                            for(size_t i = 0; i < 4; i++) add_to_binarydata((unsigned char)((*val & ((uint64_t)0xFF << (4 * (3 - i)))) >> (4 * (3 - i))));
                                                             break;
                                                         }
                                                         /* case 4 doesn't exist here */
@@ -387,16 +388,16 @@ instructiongroup    : STRING parametergroup ';' EOL {
                                                     break;
                                                 }
                                                 case 3: {
-                                                    binarydata.push_back(0xFF);
+                                                    add_to_binarydata(0xFF);
                                                     switch($2->at(1)->first) {
                                                         case 1: {
                                                             if((instruction.opcode & (1 << 14)) && (instruction.opcode & (1 << 13))) {
                                                                 std::cerr << "line " << curline << ": " << "Error! Argument size mismatch for instruction: " << *$1 << std::endl;
                                                                 errors++;
                                                             } else {
-                                                                binarydata.push_back(0);
+                                                                add_to_binarydata(0);
                                                                 uint64_t *val = (uint64_t*)$2->at(1)->second;
-                                                                for(size_t i = 0; i < 4; i++) binarydata.push_back((unsigned char)((*val & ((uint64_t)0xFF << (4 * (3 - i)))) >> (4 * (3 - i))));
+                                                                for(size_t i = 0; i < 4; i++) add_to_binarydata((unsigned char)((*val & ((uint64_t)0xFF << (4 * (3 - i)))) >> (4 * (3 - i))));
                                                             }
                                                             break;
                                                         }
@@ -411,8 +412,8 @@ instructiongroup    : STRING parametergroup ';' EOL {
                                                                     std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *$1 << std::endl;
                                                                     errors++;
                                                                 } else {
-                                                                    binarydata.push_back(reg->address);
-                                                                    for(size_t i = 0; i < 4; i++) binarydata.push_back(0);
+                                                                    add_to_binarydata(reg->address);
+                                                                    for(size_t i = 0; i < 4; i++) add_to_binarydata(0);
                                                                 }
                                                             }
                                                             break;
@@ -421,7 +422,7 @@ instructiongroup    : STRING parametergroup ';' EOL {
                                                         /* case 4 doesn't exist here */
                                                     }
                                                     uint64_t *val = (uint64_t*)$2->at(0)->second;
-                                                    for(size_t i = 0; i < 4; i++) binarydata.push_back((unsigned char)((*val & ((uint64_t)0xFF << (4 * (3 - i)))) >> (4 * (3 - i))));
+                                                    for(size_t i = 0; i < 4; i++) add_to_binarydata((unsigned char)((*val & ((uint64_t)0xFF << (4 * (3 - i)))) >> (4 * (3 - i))));
                                                     break;
                                                 }
                                                 /* case 4 doesn't exist here */
@@ -440,7 +441,7 @@ instructiongroup    : STRING parametergroup ';' EOL {
                                                     std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *$1 << std::endl;
                                                     errors++;
                                                 } else {
-                                                    binarydata.push_back(reg->address);
+                                                    add_to_binarydata(reg->address);
                                                 }
                                             }
                                             reg = (register_t*)$2->at(2)->second;
@@ -453,16 +454,16 @@ instructiongroup    : STRING parametergroup ';' EOL {
                                                     std::cerr << "line " << curline << ": " << "Error! Invalid operand size for instruction: " << *$1 << std::endl;
                                                     errors++;
                                                 } else {
-                                                    binarydata.push_back(reg->address);
+                                                    add_to_binarydata(reg->address);
                                                 }
                                             }
                                             uint64_t *val = (uint64_t*)$2->at(0)->second;
-                                            for(size_t i = 0; i < 4; i++) binarydata.push_back((unsigned char)((*val & ((uint64_t)0xFF << (4 * (3 - i)))) >> (4 * (3 - i))));
+                                            for(size_t i = 0; i < 4; i++) add_to_binarydata((unsigned char)((*val & ((uint64_t)0xFF << (4 * (3 - i)))) >> (4 * (3 - i))));
                                             break;
                                         } // argc = 3
                                         case 0:
                                         default: {
-                                            for(size_t i = 0; i < 6; i++) binarydata.push_back(0);
+                                            for(size_t i = 0; i < 6; i++) add_to_binarydata(0);
                                             break;
                                         }
                                     }
@@ -501,14 +502,14 @@ instructiongroup    : STRING parametergroup ';' EOL {
                                         std::cerr << "line " << curline << ": " << "Error! Invalid size for 32-bit mode for instruction: " << *$1 << std::endl;
                                         errors++;
                                     } else {
-                                        binarydata.push_back((unsigned char)((instruction.opcode & 0xFF00) >> 8));
-                                        binarydata.push_back((unsigned char)(instruction.opcode & 0x00FF));
-                                        for(size_t i = 0; i < 14; i++) binarydata.push_back(0);
+                                        add_to_binarydata((unsigned char)((instruction.opcode & 0xFF00) >> 8));
+                                        add_to_binarydata((unsigned char)(instruction.opcode & 0x00FF));
+                                        for(size_t i = 0; i < 14; i++) add_to_binarydata(0);
                                     }
                                 } else { // 8 byte instruction
-                                    binarydata.push_back((unsigned char)((instruction.opcode & 0xFF00) >> 8));
-                                    binarydata.push_back((unsigned char)(instruction.opcode & 0x00FF));
-                                    for(size_t i = 0; i < 6; i++) binarydata.push_back(0);
+                                    add_to_binarydata((unsigned char)((instruction.opcode & 0xFF00) >> 8));
+                                    add_to_binarydata((unsigned char)(instruction.opcode & 0x00FF));
+                                    for(size_t i = 0; i < 6; i++) add_to_binarydata(0);
                                 }
                             }
                         }

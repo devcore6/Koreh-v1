@@ -30,3 +30,7 @@ void doreplaces() {
 		else for(size_t j = 0; j < 8; j++) binarydata[scheduled[i].first + j] = (unsigned char)((val & ((uint64_t)0xFF << (8 * (7 - j)))) >> (8 * (7 - j)));
 	}
 }
+
+void add_to_binarydata(uint8_t byte) {
+	binarydata.push_back(byte);
+}

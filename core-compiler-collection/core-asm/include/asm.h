@@ -3,7 +3,7 @@
 
 constexpr uint32_t version = (0 << 24) | (0 << 16) | (1 << 8) | 1; // release << 24 | major << 16 | minor << 8 | 1=alpha 2=beta
 
-// main.cpp
+// asm-main.cpp
 extern std::vector<unsigned char> binarydata;
 extern bool bootable;
 extern uint8_t mode;
@@ -14,3 +14,4 @@ extern void addlabel(std::string);
 extern uint64_t getaddress(std::string);
 extern void schedulereplace(size_t, std::string);
 extern void doreplaces();
+extern void add_to_binarydata(uint8_t);

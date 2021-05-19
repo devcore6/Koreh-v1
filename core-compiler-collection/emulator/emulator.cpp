@@ -1,5 +1,13 @@
 #include <emulator.h>
 
+uint8_t getmemorysize(uint8_t size) {
+	if(size == 0) return 1;
+	if(size == 1) return 2;
+	if(size == 2) return 4;
+	if(size == 3) return 8;
+	return 1;
+}
+
 uint64_t reg_t::getvalue() {
 	switch(size) {
 		case 3: { return *value; }
@@ -232,20 +240,23 @@ register_t findreg(uint8_t address) {
 	return register_t();
 }
 
-uint64_t readmemory(uint64_t address, uint8_t size, core_t *core) {
-	uint64_t out = 0;
-	if(address + size > memorysize) { interrupt(INT_BOUNDS, address + size, 0, core); return 0;  }
-	if(size > 8) return 0;
+uint64_t readmemory(uint64_t address, uint8_t size, core_t* core) {
+	if(address + size > memorysize) { interrupt(INT_BOUNDS, address + size, 0, core); return 0; }
 	if(size == 8 && bits == 32) { interrupt(INT_WRONG_ARCH, address, 0, core); return 0; }
-	for(size_t i = 0; i < size; i++) out |= (uint64_t)(memory[address + i]) << (8 * i);
-	return out;
+	if(size == 1) { return memory[address]; }
+	if(size == 2) { return *((uint16_t*)(memory + address)); }
+	if(size == 4) { return *((uint32_t*)(memory + address)); }
+	if(size == 82) { return *((uint64_t*)(memory + address)); }
+	return 0;
 }
 
 void writememory(uint64_t data, uint64_t address, uint8_t size, core_t* core) {
-	if(address + size > memorysize) { interrupt(INT_BOUNDS, address + size, 0, core); return;  }
-	if(size > 8) return;
+	if(address + size > memorysize) { interrupt(INT_BOUNDS, address + size, 0, core); return; }
 	if(size == 8 && bits == 32) { interrupt(INT_WRONG_ARCH, address, 0, core); return; }
-	for(uint8_t i = 0; i < size; i++) memory[address + i] = (uint8_t)((data >> (8 * i)) & 0xFF);
+	if(size == 1) { memory[address] = (uint8_t)data; }
+	if(size == 2) { *((uint16_t*)(memory + address)) = (uint16_t)data; }
+	if(size == 4) { *((uint32_t*)(memory + address)) = (uint32_t)data; }
+	if(size == 8) { *((uint64_t*)(memory + address)) = (uint64_t)data; }
 }
 
 
@@ -296,7 +307,7 @@ void __mov(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 			break;
 		}
 		case 3: {
-			writememory(value, ridrval, size, core);
+			writememory(value, ridrval, getmemorysize(size), core);
 			break;
 		}
 	}
@@ -330,7 +341,7 @@ void __inc(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 			break;
 		}
 		case 3: {
-			writememory(readmemory(ridrval, getbytesize(size), core) + 1, ridrval, size, core);
+			writememory(readmemory(ridrval, getbytesize(size), core) + 1, ridrval, getmemorysize(size), core);
 			break;
 		}
 	}
@@ -346,7 +357,7 @@ void __dec(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 			break;
 		}
 		case 3: {
-			writememory(readmemory(ridrval, getbytesize(size), core) - 1, ridrval, size, core);
+			writememory(readmemory(ridrval, getbytesize(size), core) - 1, ridrval, getmemorysize(size), core);
 			break;
 		}
 	}
@@ -397,7 +408,7 @@ void __add(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 			break;
 		}
 		case 3: {
-			writememory(readmemory(ridrval, getbytesize(size), core) + value, ridrval, size, core);
+			writememory(readmemory(ridrval, getbytesize(size), core) + value, ridrval, getmemorysize(size), core);
 			break;
 		}
 	}
@@ -448,7 +459,7 @@ void __sub(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 			break;
 		}
 		case 3: {
-			writememory(readmemory(ridrval, getbytesize(size), core) - value, ridrval, size, core);
+			writememory(readmemory(ridrval, getbytesize(size), core) - value, ridrval, getmemorysize(size), core);
 			break;
 		}
 	}
@@ -812,7 +823,7 @@ void __or(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t* 
 			break;
 		}
 		case 3: {
-			writememory(readmemory(ridrval, getbytesize(size), core) | value, ridrval, size, core);
+			writememory(readmemory(ridrval, getbytesize(size), core) | value, ridrval, getmemorysize(size), core);
 			break;
 		}
 	}
@@ -863,7 +874,7 @@ void __xor(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 			break;
 		}
 		case 3: {
-			writememory(readmemory(ridrval, getbytesize(size), core) ^ value, ridrval, size, core);
+			writememory(readmemory(ridrval, getbytesize(size), core) ^ value, ridrval, getmemorysize(size), core);
 			break;
 		}
 	}
@@ -914,7 +925,7 @@ void __and(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 			break;
 		}
 		case 3: {
-			writememory(readmemory(ridrval, getbytesize(size), core) & value, ridrval, size, core);
+			writememory(readmemory(ridrval, getbytesize(size), core) & value, ridrval, getmemorysize(size), core);
 			break;
 		}
 	}
@@ -965,7 +976,7 @@ void __nand(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t
 			break;
 		}
 		case 3: {
-			writememory(~(readmemory(ridrval, getbytesize(size), core) & value), ridrval, size, core);
+			writememory(~(readmemory(ridrval, getbytesize(size), core) & value), ridrval, getmemorysize(size), core);
 			break;
 		}
 	}
@@ -1016,7 +1027,7 @@ void __nor(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 			break;
 		}
 		case 3: {
-			writememory(~(readmemory(ridrval, getbytesize(size), core) | value), ridrval, size, core);
+			writememory(~(readmemory(ridrval, getbytesize(size), core) | value), ridrval, getmemorysize(size), core);
 			break;
 		}
 	}
@@ -1067,7 +1078,7 @@ void __xnor(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t
 			break;
 		}
 		case 3: {
-			writememory(~(readmemory(ridrval, getbytesize(size), core) ^ value), ridrval, size, core);
+			writememory(~(readmemory(ridrval, getbytesize(size), core) ^ value), ridrval, getmemorysize(size), core);
 			break;
 		}
 	}
@@ -1083,7 +1094,7 @@ void __not(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 			break;
 		}
 		case 3: {
-			writememory(~readmemory(ridrval, getbytesize(size), core), ridrval, size, core);
+			writememory(~readmemory(ridrval, getbytesize(size), core), ridrval, getmemorysize(size), core);
 			break;
 		}
 	}
@@ -1134,7 +1145,7 @@ void __shl(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 			break;
 		}
 		case 3: {
-			writememory(readmemory(ridrval, getbytesize(size), core) << value, ridrval, size, core);
+			writememory(readmemory(ridrval, getbytesize(size), core) << value, ridrval, getmemorysize(size), core);
 			break;
 		}
 	}
@@ -1185,7 +1196,7 @@ void __shr(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 			break;
 		}
 		case 3: {
-			writememory(readmemory(ridrval, getbytesize(size), core) >> value, ridrval, size, core);
+			writememory(readmemory(ridrval, getbytesize(size), core) >> value, ridrval, getmemorysize(size), core);
 			break;
 		}
 	}

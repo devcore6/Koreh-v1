@@ -8,6 +8,7 @@
 #include <thread>				// std::thread, std::this_thread
 #include <future>				// std::future, std::promise, std::future_status
 #include <chrono>				// std::chrono::high_resolution_clock, std::chrono::duration, std::chrono::duration_cast
+#include <cmath>				// rand
 
 #include <version.h>
 #include <templates.h>

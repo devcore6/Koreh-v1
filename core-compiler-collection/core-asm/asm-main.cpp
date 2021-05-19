@@ -37,10 +37,13 @@ void help() {
 extern int yyparse();
 extern FILE* yyin;
 
-extern int yydebug;
+std::string gen_temp_name(uint16_t size = 32) {
+	std::string out = "";
+	for(uint16_t i = 0; i < size; i++) out += (char)(rand() % ('z' - 'a') + 'a');
+	return out;
+}
 
 int main(int argc, char* const argv[]) {
-	yydebug = 1;
 	std::string inFile = "";
 	std::string outFile = "";
 	for(int i = 1; i < argc; i++) {
@@ -107,7 +110,8 @@ int main(int argc, char* const argv[]) {
 		return -1;
 	}
 	std::ofstream out;
-	out.open(std::filesystem::temp_directory_path() / inFile, std::ios::out);
+	std::string tmp_name = gen_temp_name();
+	out.open(std::filesystem::temp_directory_path() / tmp_name, std::ios::out);
 	if(!out.is_open()) {
 		in.close();
 		std::cerr << "Fatal error! Failed to open temporary output file" << std::endl;
@@ -122,14 +126,14 @@ int main(int argc, char* const argv[]) {
 	}
 	out.close();
 	in.close();
-	yyin = fopen((std::filesystem::temp_directory_path() / inFile).string().c_str(), "r");
+	yyin = fopen((std::filesystem::temp_directory_path() / tmp_name).string().c_str(), "r");
 	if(!yyin) {
 		std::cerr << "Fatal error! Failed to open input file \"" << inFile << "\"" << std::endl;
 		return -1;
 	}
 	yyparse();
 	fclose(yyin);
-	std::filesystem::remove(std::filesystem::temp_directory_path() / inFile);
+	std::filesystem::remove(std::filesystem::temp_directory_path() / tmp_name);
 	if(errors != 0) {
 		std::cerr << "Compilation failed - errors occured!" << std::endl;
 		return errors;
@@ -139,7 +143,7 @@ int main(int argc, char* const argv[]) {
 		std::cerr << "Fatal error: Couldn't open output file \"" << outFile << "\"" << std::endl;
 		return -1;
 	}
-	for(size_t i = 0; i < binarydata.size(); i++) out << binarydata[i];
+	out.write((char*)binarydata.data(), binarydata.size());
 	out.close();
 	return 0;
 }

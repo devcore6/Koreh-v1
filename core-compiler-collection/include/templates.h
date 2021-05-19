@@ -90,3 +90,25 @@ std::vector<T*> findall(std::vector<T*>* vector, std::string name) {
 	for(size_t i = 0; i < vector->size(); i++) if(vector->at(i).name == name) out.push_back(vector->at(i));
 	return out;
 }
+
+/*
+ * Reverses the order of a vector
+ */
+template<class T>
+void reverse(std::vector<T> vector) {
+	std::vector<T> buf;
+	for(size_t i = vector.size() - 1; i != -1; i--) buf.push_back(vector[i]);
+	vector.clear();
+	for(size_t i = 0; i < buf.size(); i++) vector.push_back(buf[i]);
+}
+
+/*
+ * Reverses the order of a vector*
+ */
+template<class T>
+void reverse(std::vector<T>* vector) {
+	std::vector<T> buf;
+	for(size_t i = vector->size() - 1; i != -1; i--) buf.push_back(vector->at(i));
+	vector->clear();
+	for(size_t i = 0; i < buf.size(); i++) vector->push_back(buf[i]);
+}
