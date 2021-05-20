@@ -431,7 +431,132 @@ This file implements type size limits as defined in clause 17.3.6 of the ISO-C++
 
 # [cfloat](../../core-compiler-collection/libc++/include/cfloat)
 
+Implements the constants as defined in clause 17.3.7 of the ISO-C++ 23 working draft.
+
+**synopsis:**
+```c++
+#define FLT_ROUNDS
+#define FLT_EVAL_METHOD
+#define FLT_HAS_SUBNORM
+#define DBL_HAS_SUBNORM
+#define LDBL_HAS_SUBNORM
+#define FLT_RADIX
+#define FLT_MANT_DIG
+#define DBL_MANT_DIG
+#define LDBL_MANT_DIG
+#define FLT_DECIMAL_DIG
+#define DBL_DECIMAL_DIG
+#define LDBL_DECIMAL_DIG
+#define DECIMAL_DIG
+#define FLT_DIG
+#define DBL_DIG
+#define LDBL_DIG
+#define FLT_MIN_EXP
+#define DBL_MIN_EXP
+#define LDBL_MIN_EXP
+#define FLT_MIN_10_EXP
+#define DBL_MIN_10_EXP
+#define LDBL_MIN_10_EXP
+#define FLT_MAX_EXP
+#define DBL_MAX_EXP
+#define LDBL_MAX_EXP
+#define FLT_MAX_10_EXP
+#define DBL_MAX_10_EXP
+#define LDBL_MAX_10_EXP
+#define FLT_MAX
+#define DBL_MAX
+#define LDBL_MAX
+#define FLT_EPSILON
+#define DBL_EPSILON
+#define LDBL_EPSILON
+#define FLT_MIN
+#define DBL_MIN
+#define LDBL_MIN
+#define FLT_TRUE_MIN
+#define DBL_TRUE_MIN
+#define LDBL_TRUE_MIN
+```
+
 # [cstdint](../../core-compiler-collection/libc++/include/cstdint)
+
+Integer type definitions
+
+**synopsis:**
+```c++
+__BEGIN_NAMESPACE_STD
+	using int8_t;
+	using int16_t;
+	using int32_t;
+	using int64_t;
+	using int_fast8_t;
+	using int_fast16_t;
+	using int_fast32_t;
+	using int_fast64_t;
+	using int_least8_t;
+	using int_least16_t;
+	using int_least32_t;
+	using int_least64_t;
+	using intmax_t;
+	using intptr_t;
+	using uint8_t;
+	using uint16_t;
+	using uint32_t;
+	using uint64_t;
+	using uint_fast8_t;
+	using uint_fast16_t;
+	using uint_fast32_t;
+	using uint_fast64_t;
+	using uint_least8_t;
+	using uint_least16_t;
+	using uint_least32_t;
+	using uint_least64_t;
+	using uintmax_t;
+	using uintptr_t;
+__END_NAMESPACE_STD
+
+#define INT8_MIN
+#define INT8_MAX
+#define UINT8_MAX
+#define INT16_MIN
+#define INT16_MAX
+#define UINT16_MAX
+#define INT32_MIN
+#define INT32_MAX
+#define UINT32_MAX
+#define INT64_MIN
+#define INT64_MAX
+#define UINT64_MAX
+#define INT_LEAST8_MIN
+#define INT_LEAST8_MAX
+#define UINT_LEAST8_MAX
+#define INT_LEAST16_MIN
+#define INT_LEAST16_MAX
+#define UINT_LEAST16_MAX
+#define INT_LEAST32_MIN
+#define INT_LEAST32_MAX
+#define UINT_LEAST32_MAX
+#define INT_LEAST64_MIN
+#define INT_LEAST64_MAX
+#define UINT_LEAST64_MAX
+#define INT_FAST8_MIN
+#define INT_FAST8_MAX
+#define UINT_FAST8_MAX
+#define INT_FAST16_MIN
+#define INT_FAST16_MAX
+#define UINT_FAST16_MAX
+#define INT_FAST32_MIN
+#define INT_FAST32_MAX
+#define UINT_FAST32_MAX
+#define INT_FAST64_MIN
+#define INT_FAST64_MAX
+#define UINT_FAST64_MAX
+#define INTPTR_MIN
+#define INTPTR_MAX
+#define UINTPTR_MAX
+#define INTMAX_MIN
+#define INTMAX_MAX
+#define UINTMAX_MAX
+ ```
 
 # [new](../../core-compiler-collection/libc++/include/new)
 
