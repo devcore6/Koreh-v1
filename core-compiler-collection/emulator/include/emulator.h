@@ -2,7 +2,7 @@
 #include <shared.h>
 #include <cpuid.h>
 
-constexpr uint32_t version = (0 << 24) | (0 << 16) | (1 << 8) | 1; // release << 24 | major << 16 | minor << 8 | 1=alpha 2=beta
+constexpr uint32_t version = (0 << 24) | (0 << 16) | (2 << 8) | 1; // release << 24 | major << 16 | minor << 8 | 1=alpha 2=beta
 
 extern uint64_t cores;
 extern uint64_t frequency;
@@ -48,6 +48,7 @@ extern std::vector<core_t*> _cores;
 extern std::vector<function_t> functions;
 
 extern uint64_t readmemory(uint64_t address, uint8_t size, core_t* core);
+extern uint64_t readmemorybe(uint64_t address, uint8_t size, core_t* core);
 extern void writememory(uint64_t data, uint64_t address, uint8_t size, core_t *core);
 
 extern void interrupt(uint8_t intcode, uint64_t _rax, uint64_t _rbx, core_t* core);

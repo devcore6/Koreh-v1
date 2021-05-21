@@ -1,6 +1,6 @@
 #include <emulator.h>
 
-uint64_t cores = 8;
+uint64_t cores = 1;
 uint64_t frequency = 1000000;
 uint8_t bits = 64;
 uint64_t memorysize = 268435456; // 256 MB
@@ -48,16 +48,15 @@ uint8_t getsize(uint16_t opcode) {
 void corehandler(core_t* core) {
 	core->interrupts = 0;
 	try {
-		uint16_t opcode = readmemory(core->regs[rpc]->getvalue(), 2, core);
+		uint16_t opcode = readmemorybe(core->regs[rpc]->getvalue(), 2, core);
 		if(opcode == 0) return;
-		uint8_t size = getsize(opcode);
-		if(size == 3) {
-			core->regs[rir]->setvalue(readmemory(core->regs[rpc]->getvalue(), 8, core));
-			core->regs[ridr]->setvalue(readmemory(core->regs[rpc]->getvalue() + 8, 8, core));
+		if(opcode & (1 << 15)) {
+			core->regs[rir]->setvalue(readmemorybe(core->regs[rpc]->getvalue(), 8, core));
+			core->regs[ridr]->setvalue(readmemorybe(core->regs[rpc]->getvalue() + 8, 8, core));
 			core->regs[rpc]->setvalue(core->regs[rpc]->getvalue() + 16);
 		} else {
-			core->regs[rir]->setvalue(readmemory(core->regs[rpc]->getvalue(), 4, core));
-			core->regs[ridr]->setvalue(readmemory(core->regs[rpc]->getvalue() + 4, 4, core));
+			core->regs[rir]->setvalue(readmemorybe(core->regs[rpc]->getvalue(), 4, core));
+			core->regs[ridr]->setvalue(readmemorybe(core->regs[rpc]->getvalue() + 4, 4, core));
 			core->regs[rpc]->setvalue(core->regs[rpc]->getvalue() + 8);
 		}
 		function_t* func = nullptr;
@@ -82,12 +81,13 @@ void corehandler(core_t* core) {
 }
 
 void corehandlercall(core_t* core, std::future<void> shutdown) {
-	const long double tickduration = 1.0L / (long double)frequency; // long double is 64-bit double on MSVC and either 80 or 96-bit on GCC
-	std::chrono::high_resolution_clock::time_point lasttime = std::chrono::high_resolution_clock::now();
-	long double duration = 0;
-	while(shutdown.wait_for(std::chrono::duration<long double>(duration)) == std::future_status::timeout) {
+	const float tickduration = 1.0L / (float)frequency; // long double is 64-bit double on MSVC and either 80 or 96-bit on GCC
+	auto lasttime = std::chrono::high_resolution_clock::now();
+	float duration = 0;
+	while(shutdown.wait_for(std::chrono::duration<float>(((tickduration - duration) > 0) ? (tickduration - duration) : 0)) == std::future_status::timeout) {
 		corehandler(_cores[core->id]);
-		duration = std::chrono::duration_cast<std::chrono::duration<long double>>(std::chrono::high_resolution_clock::now() - lasttime).count();
+		duration = std::chrono::duration_cast<std::chrono::duration<float>>(std::chrono::high_resolution_clock::now() - lasttime).count();
+		lasttime = std::chrono::high_resolution_clock::now();
 	}
 }
 
@@ -183,7 +183,7 @@ SDL_Color Colors[16] = {
 };
 
 void genCharacter(uint16_t position, char c, uint8_t fg = VGA_COLOR_WHITE) {
-	if(!font) font = TTF_OpenFont("font.ttf", 32);
+	if(!font) font = TTF_OpenFont("font.ttf", 48);
 	if(charsData[position].surface != NULL) SDL_FreeSurface(charsData[position].surface);
 	if(charsData[position].texture != NULL) SDL_DestroyTexture(charsData[position].texture);
 	int x = position % VGA_WIDTH;
@@ -223,7 +223,7 @@ void graphicsloop() {
 		}
 	}
 	for(size_t i = 2048; i < 18047; i += 2) {
-		renderCharacter(i, memory[i], memory[i + 1] & 0x0F, (memory[i + 1] & 0xF0) >> 4);
+		renderCharacter((i - 2048) / 2, memory[i], memory[i + 1] & 0x0F, (memory[i + 1] & 0xF0) >> 4);
 	}
 	SDL_RenderPresent(renderer);
 	SDL_Delay(10);
