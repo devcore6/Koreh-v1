@@ -898,6 +898,9 @@ void __cmp(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 			if(core->regs[findreg(getregister(rirval, true))]->getvalue() > value)
 				core->regs[cr0]->setvalue(core->regs[cr0]->getvalue() | greater_flag);
 			else core->regs[cr0]->setvalue(core->regs[cr0]->getvalue() & ~greater_flag);
+			if(core->regs[findreg(getregister(rirval, true))]->getvalue() == 0)
+				core->regs[cr0]->setvalue(core->regs[cr0]->getvalue() & ~not_zero_flag);
+			else core->regs[cr0]->setvalue(core->regs[cr0]->getvalue() | not_zero_flag);
 			break;
 		}
 		case 3: {
@@ -907,6 +910,9 @@ void __cmp(instruction_t instruction, uint64_t rirval, uint64_t ridrval, core_t*
 			if(readmemory(ridrval, getbytesize(size), core) > value)
 				core->regs[cr0]->setvalue(core->regs[cr0]->getvalue() | equal_flag);
 			else core->regs[cr0]->setvalue(core->regs[cr0]->getvalue() & ~equal_flag);
+			if(readmemory(ridrval, getbytesize(size), core) == 0)
+				core->regs[cr0]->setvalue(core->regs[cr0]->getvalue() & ~not_zero_flag);
+			else core->regs[cr0]->setvalue(core->regs[cr0]->getvalue() | not_zero_flag);
 			break;
 		}
 	}

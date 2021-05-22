@@ -38,7 +38,16 @@ void help() {
 }
 
 void makedriveimage(char* const path, uint64_t size) {
-
+	std::ofstream of;
+	of.open(path, std::ios::binary);
+	if(!of.is_open()) {
+		std::cerr << "Couldn't open \"" << path << "\"!" << std::endl;
+		return;
+	}
+	char nullarr[4096] = {};
+	for(size_t i = 0; i < 4096; i++) nullarr[i] = 0;
+	for(size_t i = 0; i < size; i += 4096) of.write(nullarr, 4096); // Write in 4KB blocks
+	of.close();
 }
 
 uint8_t getsize(uint16_t opcode) {
