@@ -65,16 +65,17 @@
 # define __LIBCPP_LIMITS
 # include <config>
 # include <climits>
+# include <cmath>
 
 # ifndef __cpp_lib_char8_t
 #  define __cpp_lib_char8_t 201907L
 # endif // __cpp_lib_char8_t
 
 // Macros derived from glibcxx
-# define __libcpp_is_signed(T) ((T)(-1) < 0)
+# define __libcpp_is_signed(T) ((T)-1 < 0)
 # define __libcpp_min(T) (__libcpp_is_signed(T) ? __libcpp_max(T) - 1 : 0)
 # define __libcpp_max(T) (__libcpp_is_signed(T) ? (((((T)1 << (__libcpp_digits(T) - 1)) - 1) << 1) + 1) : ~(T)0)
-# define __libcpp_digits(T) ((sizeof(T) * __CHAR_BIT__) - __libcpp_is_signed(T))
+# define __libcpp_digits(T) ((sizeof(T) * __CHAR_BIT__) - (__libcpp_is_signed(T)))
 # define __libcpp_digits10(T) (__libcpp_digits(T) * 643L / 2136)
 
 __BEGIN_NAMESPACE_STD
@@ -147,7 +148,7 @@ __BEGIN_NAMESPACE_STD
 		static __HAS_CONSTEXPR__ int digits = 1;
 		static __HAS_CONSTEXPR__ int digits10 = 0;
 # if __cplusplus >= 201103L
-		static constexpr int noexcept = 0;
+		static constexpr int max_digits10 = 0;
 # endif // __cplusplus >= 201103L
 		static __HAS_CONSTEXPR__ bool is_signed = false;
 		static __HAS_CONSTEXPR__ bool is_integer = true;
@@ -305,7 +306,7 @@ __BEGIN_NAMESPACE_STD
 		static constexpr int digits = __libcpp_digits(char8_t);
 		static constexpr int digits10 = __libcpp_digits10(char8_t);
 		static constexpr int max_digits10 = 0;
-		static constexpr bool is_signed = __libcpp_signed(char8_t);
+		static constexpr bool is_signed = __libcpp_is_signed(char8_t);
 		static constexpr bool is_integer = true;
 		static constexpr bool is_exact = true;
 		static constexpr int radix = 2;
@@ -342,7 +343,7 @@ __BEGIN_NAMESPACE_STD
 		static constexpr int digits = __libcpp_digits(char16_t);
 		static constexpr int digits10 = __libcpp_digits10(char16_t);
 		static constexpr int max_digits10 = 0;
-		static constexpr bool is_signed = __libcpp_signed(char16_t);
+		static constexpr bool is_signed = __libcpp_is_signed(char16_t);
 		static constexpr bool is_integer = true;
 		static constexpr bool is_exact = true;
 		static constexpr int radix = 2;
@@ -377,7 +378,7 @@ __BEGIN_NAMESPACE_STD
 		static constexpr int digits = __libcpp_digits(char32_t);
 		static constexpr int digits10 = __libcpp_digits10(char32_t);
 		static constexpr int max_digits10 = 0;
-		static constexpr bool is_signed = __libcpp_signed(char32_t);
+		static constexpr bool is_signed = __libcpp_is_signed(char32_t);
 		static constexpr bool is_integer = true;
 		static constexpr bool is_exact = true;
 		static constexpr int radix = 2;
@@ -417,7 +418,7 @@ __BEGIN_NAMESPACE_STD
 # if __cplusplus >= 201103L
 		static constexpr int max_digits10 = 0;
 # endif // __cplusplus >= 201103L
-		static __HAS_CONSTEXPR__ bool is_signed = __libcpp_signed(wchar_t);
+		static __HAS_CONSTEXPR__ bool is_signed = __libcpp_is_signed(wchar_t);
 		static __HAS_CONSTEXPR__ bool is_integer = true;
 		static __HAS_CONSTEXPR__ bool is_exact = true;
 		static __HAS_CONSTEXPR__ int radix = 2;
@@ -457,7 +458,7 @@ __BEGIN_NAMESPACE_STD
 # if __cplusplus >= 201103L
 		static constexpr int max_digits10 = 0;
 # endif // __cplusplus >= 201103L
-		static __HAS_CONSTEXPR__ bool is_signed = __libcpp_signed(short);
+		static __HAS_CONSTEXPR__ bool is_signed = __libcpp_is_signed(short);
 		static __HAS_CONSTEXPR__ bool is_integer = true;
 		static __HAS_CONSTEXPR__ bool is_exact = true;
 		static __HAS_CONSTEXPR__ int radix = 2;
@@ -496,7 +497,7 @@ __BEGIN_NAMESPACE_STD
 # if __cplusplus >= 201103L
 		static constexpr int max_digits10 = 0;
 # endif // __cplusplus >= 201103L
-		static __HAS_CONSTEXPR__ bool is_signed = __libcpp_signed(int);
+		static __HAS_CONSTEXPR__ bool is_signed = __libcpp_is_signed(int);
 		static __HAS_CONSTEXPR__ bool is_integer = true;
 		static __HAS_CONSTEXPR__ bool is_exact = true;
 		static __HAS_CONSTEXPR__ int radix = 2;
@@ -535,7 +536,7 @@ __BEGIN_NAMESPACE_STD
 # if __cplusplus >= 201103L
 		static constexpr int max_digits10 = 0;
 # endif // __cplusplus >= 201103L
-		static __HAS_CONSTEXPR__ bool is_signed = __libcpp_signed(long);
+		static __HAS_CONSTEXPR__ bool is_signed = __libcpp_is_signed(long);
 		static __HAS_CONSTEXPR__ bool is_integer = true;
 		static __HAS_CONSTEXPR__ bool is_exact = true;
 		static __HAS_CONSTEXPR__ int radix = 2;
@@ -571,7 +572,7 @@ __BEGIN_NAMESPACE_STD
 		static constexpr int digits = __libcpp_digits(long long);
 		static constexpr int digits10 = __libcpp_digits10(long long);
 		static constexpr int max_digits10 = 0;
-		static constexpr bool is_signed = __libcpp_signed(long long);
+		static constexpr bool is_signed = __libcpp_is_signed(long long);
 		static constexpr bool is_integer = true;
 		static constexpr bool is_exact = true;
 		static constexpr int radix = 2;
@@ -611,7 +612,7 @@ __BEGIN_NAMESPACE_STD
 # if __cplusplus >= 201103L
 		static constexpr int max_digits10 = 0;
 # endif // __cplusplus >= 201103L
-		static __HAS_CONSTEXPR__ bool is_signed = __libcpp_signed(unsigned short);
+		static __HAS_CONSTEXPR__ bool is_signed = __libcpp_is_signed(unsigned short);
 		static __HAS_CONSTEXPR__ bool is_integer = true;
 		static __HAS_CONSTEXPR__ bool is_exact = true;
 		static __HAS_CONSTEXPR__ int radix = 2;
@@ -650,7 +651,7 @@ __BEGIN_NAMESPACE_STD
 # if __cplusplus >= 201103L
 		static constexpr int max_digits10 = 0;
 # endif // __cplusplus >= 201103L
-		static __HAS_CONSTEXPR__ bool is_signed = __libcpp_signed(unsigned int);
+		static __HAS_CONSTEXPR__ bool is_signed = __libcpp_is_signed(unsigned int);
 		static __HAS_CONSTEXPR__ bool is_integer = true;
 		static __HAS_CONSTEXPR__ bool is_exact = true;
 		static __HAS_CONSTEXPR__ int radix = 2;
@@ -689,7 +690,7 @@ __BEGIN_NAMESPACE_STD
 # if __cplusplus >= 201103L
 		static constexpr int max_digits10 = 0;
 # endif // __cplusplus >= 201103L
-		static __HAS_CONSTEXPR__ bool is_signed = __libcpp_signed(unsigned long);
+		static __HAS_CONSTEXPR__ bool is_signed = __libcpp_is_signed(unsigned long);
 		static __HAS_CONSTEXPR__ bool is_integer = true;
 		static __HAS_CONSTEXPR__ bool is_exact = true;
 		static __HAS_CONSTEXPR__ int radix = 2;
@@ -725,7 +726,7 @@ __BEGIN_NAMESPACE_STD
 		static constexpr int digits = __libcpp_digits(unsigned long long);
 		static constexpr int digits10 = __libcpp_digits10(unsigned long long);
 		static constexpr int max_digits10 = 0;
-		static constexpr bool is_signed = __libcpp_signed(unsigned long long);
+		static constexpr bool is_signed = __libcpp_is_signed(unsigned long long);
 		static constexpr bool is_integer = true;
 		static constexpr bool is_exact = true;
 		static constexpr int radix = 2;
@@ -781,9 +782,9 @@ __BEGIN_NAMESPACE_STD
 		static __HAS_CONSTEXPR__ bool has_signaling_NaN = true;
 		static __HAS_CONSTEXPR__ float_denorm_style has_denorm = denorm_present;
 		static __HAS_CONSTEXPR__ bool has_denorm_loss = true;
-		static __HAS_CONSTEXPR__ float infinity() __HAS_NOEXCEPT__ { return __builtin_infinityf(); }
-		static __HAS_CONSTEXPR__ float quiet_NaN() __HAS_NOEXCEPT__ { return __builtin_nanf(""); }
-		static __HAS_CONSTEXPR__ float signaling_NaN() __HAS_NOEXCEPT__ { return __builtin_nansf(""); }
+		static __HAS_CONSTEXPR__ float infinity() __HAS_NOEXCEPT__ { return (1.0 / 0.0); }
+		static __HAS_CONSTEXPR__ float quiet_NaN() __HAS_NOEXCEPT__ { return sqrt(-1); }
+		static __HAS_CONSTEXPR__ float signaling_NaN() __HAS_NOEXCEPT__ { return sqrt(-1); }
 		static __HAS_CONSTEXPR__ float denorm_min() __HAS_NOEXCEPT__ { return __FLT_DENORM_MIN__; }
 		static __HAS_CONSTEXPR__ bool is_iec559 = true;
 		static __HAS_CONSTEXPR__ bool is_bounded = true;
@@ -818,11 +819,11 @@ __BEGIN_NAMESPACE_STD
 		static __HAS_CONSTEXPR__ bool has_infinity = false;
 		static __HAS_CONSTEXPR__ bool has_quiet_NaN = true;
 		static __HAS_CONSTEXPR__ bool has_signaling_NaN = true;
-		static __HAS_CONSTEXPR__ double_denorm_style has_denorm = denorm_present;
+		static __HAS_CONSTEXPR__ float_denorm_style has_denorm = denorm_present;
 		static __HAS_CONSTEXPR__ bool has_denorm_loss = true;
-		static __HAS_CONSTEXPR__ double infinity() __HAS_NOEXCEPT__ { return __builtin_infinityd(); }
-		static __HAS_CONSTEXPR__ double quiet_NaN() __HAS_NOEXCEPT__ { return __builtin_nand(""); }
-		static __HAS_CONSTEXPR__ double signaling_NaN() __HAS_NOEXCEPT__ { return __builtin_nansd(""); }
+		static __HAS_CONSTEXPR__ double infinity() __HAS_NOEXCEPT__ { return (1.0 / 0.0); }
+		static __HAS_CONSTEXPR__ double quiet_NaN() __HAS_NOEXCEPT__ { return sqrt(-1); }
+		static __HAS_CONSTEXPR__ double signaling_NaN() __HAS_NOEXCEPT__ { return sqrt(-1); }
 		static __HAS_CONSTEXPR__ double denorm_min() __HAS_NOEXCEPT__ { return __DBL_DENORM_MIN__; }
 		static __HAS_CONSTEXPR__ bool is_iec559 = true;
 		static __HAS_CONSTEXPR__ bool is_bounded = true;
@@ -857,11 +858,11 @@ __BEGIN_NAMESPACE_STD
 		static __HAS_CONSTEXPR__ bool has_infinity = false;
 		static __HAS_CONSTEXPR__ bool has_quiet_NaN = true;
 		static __HAS_CONSTEXPR__ bool has_signaling_NaN = true;
-		static __HAS_CONSTEXPR__ long double_denorm_style has_denorm = denorm_present;
+		static __HAS_CONSTEXPR__ float_denorm_style has_denorm = denorm_present;
 		static __HAS_CONSTEXPR__ bool has_denorm_loss = true;
-		static __HAS_CONSTEXPR__ long double infinity() __HAS_NOEXCEPT__ { return __builtin_infinityld(); }
-		static __HAS_CONSTEXPR__ long double quiet_NaN() __HAS_NOEXCEPT__ { return __builtin_nanld(""); }
-		static __HAS_CONSTEXPR__ long double signaling_NaN() __HAS_NOEXCEPT__ { return __builtin_nansld(""); }
+		static __HAS_CONSTEXPR__ long double infinity() __HAS_NOEXCEPT__ { return (1.0 / 0.0); }
+		static __HAS_CONSTEXPR__ long double quiet_NaN() __HAS_NOEXCEPT__ { return sqrt(-1); }
+		static __HAS_CONSTEXPR__ long double signaling_NaN() __HAS_NOEXCEPT__ { return sqrt(-1); }
 		static __HAS_CONSTEXPR__ long double denorm_min() __HAS_NOEXCEPT__ { return __LDBL_DENORM_MIN__; }
 		static __HAS_CONSTEXPR__ bool is_iec559 = true;
 		static __HAS_CONSTEXPR__ bool is_bounded = true;
