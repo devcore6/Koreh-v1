@@ -94,7 +94,9 @@
  *
  */
 
-#include <stdint.h>
+#ifndef __LIBCPP_CSTDINT
+# include <config>
+# include <stdint.h>
 
 __BEGIN_NAMESPACE_STD
 	using int8_t = ::int8_t;
@@ -126,3 +128,4 @@ __BEGIN_NAMESPACE_STD
 	using uintmax_t = ::uintmax_t;
 	using uintptr_t = ::uintptr_t;
 __END_NAMESPACE_STD
+#endif

@@ -15,6 +15,8 @@
  * 
  */
 
+#include <ctype.h>
+
 int isalnum(int c) {
 	return isalpha(c) || isdigit(c);
 }
@@ -28,7 +30,7 @@ int isblank(int c) {
 }
 
 int iscntrl(int c) {
-	return c >= 0x00 && c <= 0x1f || c == 0x7f;
+	return (c >= 0x00 && c <= 0x1f) || c == 0x7f;
 }
 
 int isdigit(int c) {

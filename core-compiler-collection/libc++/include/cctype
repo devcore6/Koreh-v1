@@ -37,7 +37,9 @@
  *
  */
 
-#include <ctype.h>
+#ifndef __LIBCPP_CCTYPE
+# include <config>
+# include <ctype.h>
 
 __BEGIN_NAMESPACE_STD
 	using ::isalnum;
@@ -55,3 +57,4 @@ __BEGIN_NAMESPACE_STD
 	using ::tolower;
 	using ::toupper;
 __END_NAMESPACE_STD
+#endif
